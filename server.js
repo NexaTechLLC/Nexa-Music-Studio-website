@@ -19,11 +19,16 @@ const mimeTypes = {
 function resolveFilePath(urlPath) {
   const decodedPath = decodeURIComponent(urlPath.split("?")[0]);
   const normalizedPath = path.normalize(decodedPath).replace(/^(\.\.[/\\])+/, "");
-  const requestedPath = normalizedPath === "/" ? "/index.html" : normalizedPath;
-  const filePath = path.join(publicDir, requestedPath);
+  const cleanPath = normalizedPath.length > 1 ? normalizedPath.replace(/\/$/, "") : normalizedPath;
+  const requestedPath = cleanPath === "/" ? "/index.html" : cleanPath;
+  let filePath = path.join(publicDir, requestedPath);
 
   if (!filePath.startsWith(publicDir)) {
     return path.join(publicDir, "index.html");
+  }
+
+  if (!path.extname(filePath)) {
+    filePath = `${filePath}.html`;
   }
 
   return filePath;

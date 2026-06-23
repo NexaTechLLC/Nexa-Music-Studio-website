@@ -95,7 +95,8 @@ img {
 }
 
 .site-nav a:hover,
-.site-nav a:focus-visible {
+.site-nav a:focus-visible,
+.site-nav a[aria-current="page"] {
   background: rgba(255, 255, 255, 0.09);
   color: var(--text);
   outline: none;
@@ -428,6 +429,85 @@ h3 {
   text-transform: uppercase;
 }
 
+.section-link {
+  display: inline-flex;
+  margin-top: 1.5rem;
+  color: var(--cyan);
+  font-weight: 900;
+}
+
+.page-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.72fr);
+  gap: 2rem;
+  align-items: center;
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 5rem 0 4rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.page-hero h1 {
+  max-width: 11ch;
+}
+
+.page-hero p:not(.eyebrow) {
+  max-width: 720px;
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.page-hero img {
+  width: min(440px, 100%);
+  margin-inline: auto;
+  filter: drop-shadow(0 0 30px rgba(17, 200, 255, 0.22)) drop-shadow(0 0 34px rgba(255, 42, 168, 0.24));
+}
+
+.page-section {
+  border-top: 0;
+}
+
+.detailed-grid {
+  margin-top: 0;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.product-grid article,
+.contact-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+}
+
+.product-grid article {
+  min-height: 260px;
+  padding: 1.35rem;
+}
+
+.product-grid article strong {
+  display: inline-flex;
+  margin-top: 1rem;
+  color: var(--text);
+}
+
+.blog-grid article span {
+  color: var(--muted);
+}
+
+.contact-card {
+  padding: 1.5rem;
+}
+
+.contact-card p {
+  color: var(--muted);
+}
+
 .contact-section {
   display: flex;
   align-items: center;
@@ -494,7 +574,8 @@ h3 {
   .hero,
   .intro,
   .split-section,
-  .store-panel {
+  .store-panel,
+  .page-hero {
     grid-template-columns: 1fr;
   }
 
@@ -520,7 +601,8 @@ h3 {
 
   .artist-grid,
   .license-grid,
-  .blog-grid {
+  .blog-grid,
+  .product-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -558,7 +640,8 @@ h3 {
 
   .artist-grid,
   .license-grid,
-  .blog-grid {
+  .blog-grid,
+  .product-grid {
     grid-template-columns: 1fr;
   }
 
