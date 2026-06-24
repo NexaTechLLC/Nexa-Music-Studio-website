@@ -1,42 +1,118 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
 const port = Number(process.env.PORT) || 3000;
-const publicDir = path.join(__dirname, "public");
+const rootDir = __dirname;
+const publicDir = path.join(rootDir, "public");
+const storageDir = path.join(rootDir, "storage");
+const mediaDir = path.join(storageDir, "media");
+const metaDir = path.join(storageDir, "meta");
+const contactFile = path.join(storageDir, "contact-submissions.json");
+const mediaIndexFile = path.join(metaDir, "media-library.json");
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".js": "text/javascript; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
   ".png": "image/png",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".svg": "image/svg+xml",
-  ".ico": "image/x-icon"
+  ".ico": "image/x-icon",
+  ".mp3": "audio/mpeg",
+  ".wav": "audio/wav",
+  ".m4a": "audio/mp4",
+  ".mp4": "video/mp4",
+  ".webm": "video/webm",
+  ".mov": "video/quicktime"
 };
 
-function resolveFilePath(urlPath) {
+const allowedMediaTypes = new Set([
+  "audio/mpeg",
+  "audio/mp3",
+  "audio/wav",
+  "audio/x-wav",
+  "audio/mp4",
+  "video/mp4",
+  "video/webm",
+  "video/quicktime"
+]);
+
+function ensureStorage() {
+  fs.mkdirSync(mediaDir, { recursive: true });
+  fs.mkdirSync(metaDir, { recursive: true });
+  if (!fs.existsSync(contactFile)) fs.writeFileSync(contactFile, "[]\n");
+  if (!fs.existsSync(mediaIndexFile)) fs.writeFileSync(mediaIndexFile, "[]\n");
+}
+
+function sendJson(response, statusCode, payload) {
+  response.writeHead(statusCode, {
+    "Content-Type": mimeTypes[".json"],
+    "Cache-Control": "no-cache"
+  });
+  response.end(JSON.stringify(payload));
+}
+
+function readJsonFile(filePath) {
+  try {
+    return JSON.parse(fs.readFileSync(filePath, "utf8"));
+  } catch {
+    return [];
+  }
+}
+
+function writeJsonFile(filePath, data) {
+  fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`);
+}
+
+function collectBody(request, limitBytes = 30 * 1024 * 1024) {
+  return new Promise((resolve, reject) => {
+    let size = 0;
+    const chunks = [];
+
+    request.on("data", (chunk) => {
+      size += chunk.length;
+      if (size > limitBytes) {
+        reject(new Error("Request body too large"));
+        request.destroy();
+        return;
+      }
+      chunks.push(chunk);
+    });
+
+    request.on("end", () => resolve(Buffer.concat(chunks).toString("utf8")));
+    request.on("error", reject);
+  });
+}
+
+function sanitizeText(value, fallback = "") {
+  return String(value || fallback).trim().slice(0, 180);
+}
+
+function sanitizeFilename(filename) {
+  const parsed = path.parse(String(filename || "upload"));
+  const base = parsed.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "upload";
+  const ext = parsed.ext.toLowerCase().replace(/[^a-z0-9.]/g, "");
+  return `${base}${ext}`;
+}
+
+function resolvePublicFile(urlPath) {
   const decodedPath = decodeURIComponent(urlPath.split("?")[0]);
   const normalizedPath = path.normalize(decodedPath).replace(/^(\.\.[/\\])+/, "");
   const cleanPath = normalizedPath.length > 1 ? normalizedPath.replace(/\/$/, "") : normalizedPath;
   const requestedPath = cleanPath === "/" ? "/index.html" : cleanPath;
   let filePath = path.join(publicDir, requestedPath);
 
-  if (!filePath.startsWith(publicDir)) {
-    return path.join(publicDir, "index.html");
-  }
-
-  if (!path.extname(filePath)) {
-    filePath = `${filePath}.html`;
-  }
+  if (!filePath.startsWith(publicDir)) return path.join(publicDir, "index.html");
+  if (!path.extname(filePath)) filePath = `${filePath}.html`;
 
   return filePath;
 }
 
-const server = http.createServer((request, response) => {
-  const filePath = resolveFilePath(request.url || "/");
-
+function serveFile(filePath, response) {
   fs.readFile(filePath, (error, content) => {
     if (error) {
       fs.readFile(path.join(publicDir, "index.html"), (fallbackError, fallbackContent) => {
@@ -46,7 +122,7 @@ const server = http.createServer((request, response) => {
           return;
         }
 
-        response.writeHead(200, { "Content-Type": mimeTypes[".html"] });
+        response.writeHead(200, { "Content-Type": mimeTypes[".html"], "Cache-Control": "no-cache" });
         response.end(fallbackContent);
       });
       return;
@@ -59,6 +135,145 @@ const server = http.createServer((request, response) => {
     });
     response.end(content);
   });
+}
+
+async function handleContact(request, response) {
+  const body = JSON.parse(await collectBody(request, 1024 * 1024) || "{}");
+  const submission = {
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+    name: sanitizeText(body.name),
+    email: sanitizeText(body.email),
+    type: sanitizeText(body.type, "general"),
+    useCase: sanitizeText(body.useCase),
+    budget: sanitizeText(body.budget),
+    message: sanitizeText(body.message, "").slice(0, 2000)
+  };
+
+  if (!submission.name || !submission.email || !submission.message) {
+    sendJson(response, 400, { ok: false, error: "Name, email, and message are required." });
+    return;
+  }
+
+  const submissions = readJsonFile(contactFile);
+  submissions.unshift(submission);
+  writeJsonFile(contactFile, submissions.slice(0, 500));
+  sendJson(response, 200, { ok: true, id: submission.id });
+}
+
+function parseDataUrl(dataUrl) {
+  const match = String(dataUrl || "").match(/^data:([^;]+);base64,(.+)$/);
+  if (!match) return null;
+  return { mimeType: match[1], buffer: Buffer.from(match[2], "base64") };
+}
+
+async function handleMediaUpload(request, response) {
+  const body = JSON.parse(await collectBody(request) || "{}");
+  const parsed = parseDataUrl(body.dataUrl);
+
+  if (!parsed || !allowedMediaTypes.has(parsed.mimeType)) {
+    sendJson(response, 400, { ok: false, error: "Upload must be an audio or video file." });
+    return;
+  }
+
+  if (parsed.buffer.length > 25 * 1024 * 1024) {
+    sendJson(response, 413, { ok: false, error: "File must be 25MB or smaller." });
+    return;
+  }
+
+  const cleanName = sanitizeFilename(body.fileName);
+  const ext = path.extname(cleanName) || (parsed.mimeType.startsWith("video/") ? ".mp4" : ".wav");
+  const storedName = `${Date.now()}-${crypto.randomBytes(4).toString("hex")}-${path.basename(cleanName, ext)}${ext}`;
+  const filePath = path.join(mediaDir, storedName);
+  fs.writeFileSync(filePath, parsed.buffer);
+
+  const mediaItem = {
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+    title: sanitizeText(body.title, cleanName),
+    artist: sanitizeText(body.artist, "NEXAStudios Artist"),
+    kind: sanitizeText(body.kind, parsed.mimeType.startsWith("video/") ? "video" : "audio"),
+    mimeType: parsed.mimeType,
+    originalName: cleanName,
+    storedName,
+    size: parsed.buffer.length,
+    url: `/media/${storedName}`
+  };
+
+  const media = readJsonFile(mediaIndexFile);
+  media.unshift(mediaItem);
+  writeJsonFile(mediaIndexFile, media);
+  sendJson(response, 201, { ok: true, media: mediaItem });
+}
+
+function handleMediaList(response) {
+  sendJson(response, 200, { ok: true, media: readJsonFile(mediaIndexFile) });
+}
+
+async function handleCheckout(request, response) {
+  const body = JSON.parse(await collectBody(request, 1024 * 1024) || "{}");
+  const productName = sanitizeText(body.productName, "NEXAStudios Music product");
+
+  sendJson(response, 501, {
+    ok: false,
+    error: "Stripe checkout is not configured yet. Add STRIPE_SECRET_KEY and real Stripe Price IDs before enabling purchases.",
+    productName
+  });
+}
+
+function serveStoredMedia(urlPath, response) {
+  const filename = path.basename(decodeURIComponent(urlPath.replace("/media/", "")));
+  const filePath = path.join(mediaDir, filename);
+  if (!filePath.startsWith(mediaDir)) {
+    sendJson(response, 403, { ok: false, error: "Forbidden" });
+    return;
+  }
+  serveFile(filePath, response);
+}
+
+async function handleApi(request, response, pathname) {
+  try {
+    if (pathname === "/api/contact" && request.method === "POST") {
+      await handleContact(request, response);
+      return true;
+    }
+    if (pathname === "/api/media" && request.method === "GET") {
+      handleMediaList(response);
+      return true;
+    }
+    if (pathname === "/api/media" && request.method === "POST") {
+      await handleMediaUpload(request, response);
+      return true;
+    }
+    if (pathname === "/api/checkout" && request.method === "POST") {
+      await handleCheckout(request, response);
+      return true;
+    }
+  } catch (error) {
+    sendJson(response, 500, { ok: false, error: error.message || "Server error" });
+    return true;
+  }
+
+  return false;
+}
+
+ensureStorage();
+
+const server = http.createServer(async (request, response) => {
+  const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
+
+  if (url.pathname.startsWith("/api/")) {
+    const handled = await handleApi(request, response, url.pathname);
+    if (!handled) sendJson(response, 404, { ok: false, error: "API route not found" });
+    return;
+  }
+
+  if (url.pathname.startsWith("/media/")) {
+    serveStoredMedia(url.pathname, response);
+    return;
+  }
+
+  serveFile(resolvePublicFile(url.pathname + url.search), response);
 });
 
 server.listen(port, () => {

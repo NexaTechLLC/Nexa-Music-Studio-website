@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="NEXAStudios Music store for albums, tracks, bundles, and premium audio downloads." />
     <title>Store | NEXAStudios Music</title>
-    <link rel="stylesheet" href="/styles.css?v=4" />
+    <link rel="stylesheet" href="/styles.css?v=5" />
   </head>
   <body>
     <header class="site-header" id="top">
@@ -21,7 +21,7 @@
     </header>
 
     <main>
-      <section class="page-hero">
+      <section class="page-hero reveal">
         <div>
           <p class="eyebrow">Store</p>
           <h1>One catalog for albums, tracks, and bundles.</h1>
@@ -30,16 +30,106 @@
         <img src="/assets/nexa-logo-classic.png" alt="NEXAStudios Music logo" />
       </section>
 
-      <section class="section page-section">
-        <div class="product-grid">
-          <article><p class="eyebrow">Album</p><h3>Regional Album Drops</h3><p>Complete themed releases packaged for fans who want a full listening experience.</p><strong>$9.99 target</strong></article>
-          <article><p class="eyebrow">Track</p><h3>Single Downloads</h3><p>Individual songs for listeners who discover NEXAStudios through a specific persona or style.</p><strong>MP3 + WAV</strong></article>
-          <article><p class="eyebrow">Bundle</p><h3>Creator Packs</h3><p>Curated track sets for short videos, podcasts, streams, and regional content campaigns.</p><strong>License-ready</strong></article>
+      <section class="section page-section reveal">
+        <div class="store-filters" role="group" aria-label="Filter catalog">
+          <button class="filter-btn active" type="button" data-filter="all">All</button>
+          <button class="filter-btn" type="button" data-filter="west-africa">West Africa</button>
+          <button class="filter-btn" type="button" data-filter="latin">Latin</button>
+          <button class="filter-btn" type="button" data-filter="middle-east">Middle East</button>
+          <button class="filter-btn" type="button" data-filter="asia">Asia</button>
         </div>
+
+        <div id="purchase-success" class="purchase-success" hidden>Purchase complete. Check your email for your download link.</div>
+
+        <div class="product-grid reveal-group" id="product-grid">
+          <article class="product-card" data-region="west-africa" data-audio="/audio/afro-preview.wav">
+            <div class="product-thumb afro-thumb"></div>
+            <div class="product-info">
+              <p class="eyebrow">West Africa · Album</p>
+              <h3>Afro-Highlife Vol. 1</h3>
+              <p>10 tracks of modern highlife, Pidgin-fused dance production.</p>
+              <div class="product-actions">
+                <span class="product-price">$9.99</span>
+                <button class="preview-btn" type="button" aria-label="Preview Afro-Highlife Vol. 1"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
+                <button class="button primary buy-btn" type="button" data-price-id="price_REPLACE_AFRO" data-name="Afro-Highlife Vol. 1">Buy</button>
+              </div>
+            </div>
+          </article>
+          <article class="product-card" data-region="latin" data-audio="/audio/latin-preview.wav">
+            <div class="product-thumb latin-thumb"></div>
+            <div class="product-info">
+              <p class="eyebrow">Latin · Album</p>
+              <h3>Latin Contemporary Vol. 1</h3>
+              <p>10 tracks of melodic pop, club textures, and acoustic rhythm.</p>
+              <div class="product-actions">
+                <span class="product-price">$9.99</span>
+                <button class="preview-btn" type="button" aria-label="Preview Latin Contemporary Vol. 1"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
+                <button class="button primary buy-btn" type="button" data-price-id="price_REPLACE_LATIN" data-name="Latin Contemporary Vol. 1">Buy</button>
+              </div>
+            </div>
+          </article>
+          <article class="product-card" data-region="middle-east" data-audio="/audio/mideast-preview.wav">
+            <div class="product-thumb mideast-thumb"></div>
+            <div class="product-info">
+              <p class="eyebrow">Middle East · Album</p>
+              <h3>Middle Eastern Pulse Vol. 1</h3>
+              <p>10 tracks of cinematic percussion, atmosphere, and drama.</p>
+              <div class="product-actions">
+                <span class="product-price">$9.99</span>
+                <button class="preview-btn" type="button" aria-label="Preview Middle Eastern Pulse Vol. 1"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
+                <button class="button primary buy-btn" type="button" data-price-id="price_REPLACE_MIDEAST" data-name="Middle Eastern Pulse Vol. 1">Buy</button>
+              </div>
+            </div>
+          </article>
+          <article class="product-card" data-region="asia" data-audio="/audio/asia-preview.wav">
+            <div class="product-thumb asia-thumb"></div>
+            <div class="product-info">
+              <p class="eyebrow">Asia · Album</p>
+              <h3>Asian Future Pop Vol. 1</h3>
+              <p>10 tracks of bright hooks, sleek synths, polished pop builds.</p>
+              <div class="product-actions">
+                <span class="product-price">$9.99</span>
+                <button class="preview-btn" type="button" aria-label="Preview Asian Future Pop Vol. 1"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
+                <button class="button primary buy-btn" type="button" data-price-id="price_REPLACE_ASIA" data-name="Asian Future Pop Vol. 1">Buy</button>
+              </div>
+            </div>
+          </article>
+        </div>
+        <p style="margin-top:1.5rem;font-size:0.82rem;color:var(--muted);">All albums: MP3 320kbps + WAV. Instant download can be enabled after Stripe Price IDs are configured.</p>
+      </section>
+
+      <section class="section page-section media-vault reveal">
+        <div class="section-heading">
+          <p class="eyebrow">Backend Media Vault</p>
+          <h2>Store audio and video snippets.</h2>
+          <p>Upload artist previews, music videos, behind-the-scenes clips, and catalog snippets. Files are stored by the Node backend under `storage/media` and listed through `/api/media`.</p>
+        </div>
+        <form class="media-form" id="media-upload-form">
+          <div class="field-row">
+            <div class="field"><label for="media-title">Title</label><input id="media-title" name="title" type="text" required /></div>
+            <div class="field"><label for="media-artist">Artist</label><input id="media-artist" name="artist" type="text" required /></div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="media-kind">Media kind</label>
+              <select id="media-kind" name="kind"><option>snippet</option><option>full track</option><option>music video</option><option>behind the scenes</option></select>
+            </div>
+            <div class="field"><label for="media-file">Audio or video file</label><input id="media-file" name="file" type="file" accept="audio/*,video/*" required /></div>
+          </div>
+          <button class="button primary" type="submit">Upload media</button>
+          <p class="form-status" aria-live="polite"></p>
+        </form>
+        <div class="media-library-list" id="media-library-list"></div>
       </section>
     </main>
 
     <footer class="site-footer"><img src="/assets/nexa-mark.png" alt="" /><p>&copy; <span id="year"></span> NEXAStudios Music. All rights reserved.</p><a href="/contact">Contact</a></footer>
-    <script src="/script.js?v=4"></script>
+    <div id="audio-bar" role="status" aria-live="polite">
+      <button id="audio-bar-toggle" aria-label="Pause preview"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><rect x="2" y="1" width="4" height="12"/><rect x="8" y="1" width="4" height="12"/></svg></button>
+      <div><div class="track-label">Now previewing</div><div class="track-name" id="audio-bar-title">-</div></div>
+      <progress id="audio-progress" value="0" max="1"></progress>
+      <button id="audio-bar-close" aria-label="Close player">x</button>
+    </div>
+    <script src="/script.js?v=5"></script>
   </body>
 </html>

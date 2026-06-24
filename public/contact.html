@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Contact NEXAStudios Music for store, licensing, custom briefs, and catalog questions." />
     <title>Contact | NEXAStudios Music</title>
-    <link rel="stylesheet" href="/styles.css?v=4" />
+    <link rel="stylesheet" href="/styles.css?v=5" />
   </head>
   <body>
     <header class="site-header" id="top">
@@ -21,7 +21,7 @@
     </header>
 
     <main>
-      <section class="page-hero">
+      <section class="page-hero reveal">
         <div>
           <p class="eyebrow">Contact</p>
           <h1>Build, buy, or license the catalog.</h1>
@@ -30,21 +30,59 @@
         <img src="/assets/nexa-logo-v2.png" alt="NEXAStudios Music logo" />
       </section>
 
-      <section class="split-section page-section">
-        <div class="contact-card">
-          <h2>Start here.</h2>
-          <p>Use email for catalog requests, licensing discussions, and store support.</p>
-          <a class="button primary" href="mailto:nexastudiosmusic@gmail.com">nexastudiosmusic@gmail.com</a>
+      <section class="section page-section reveal">
+        <div class="contact-tabs" role="tablist">
+          <button class="tab-btn active" type="button" role="tab" aria-selected="true" data-tab="fan">Store / Fan</button>
+          <button class="tab-btn" type="button" role="tab" aria-selected="false" data-tab="licensing">Licensing</button>
+          <button class="tab-btn" type="button" role="tab" aria-selected="false" data-tab="press">Press</button>
         </div>
-        <div class="feature-list">
-          <div><h3>Store Support</h3><p>Questions about MP3, WAV, album bundles, and download delivery.</p></div>
-          <div><h3>Sync Licensing</h3><p>Commercial use for creators, product videos, indie games, campaigns, and branded content.</p></div>
-          <div><h3>Custom Briefs</h3><p>Regional sound requests for launches, creator series, and global audience campaigns.</p></div>
+
+        <div class="tab-panel" id="tab-fan">
+          <form class="contact-form" data-type="fan" novalidate>
+            <div class="field-row">
+              <div class="field"><label for="fan-name">Name</label><input id="fan-name" name="name" type="text" required autocomplete="name" /></div>
+              <div class="field"><label for="fan-email">Email</label><input id="fan-email" name="email" type="email" required autocomplete="email" /></div>
+            </div>
+            <div class="field"><label for="fan-msg">Message</label><textarea id="fan-msg" name="message" rows="5" required></textarea></div>
+            <button class="button primary" type="submit">Send message</button>
+            <p class="form-status" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <div class="tab-panel" id="tab-licensing" hidden>
+          <form class="contact-form" data-type="licensing" novalidate>
+            <div class="field-row">
+              <div class="field"><label for="lic-name">Company / Creator</label><input id="lic-name" name="name" type="text" required /></div>
+              <div class="field"><label for="lic-email">Email</label><input id="lic-email" name="email" type="email" required /></div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="lic-use">Use case</label>
+                <select id="lic-use" name="useCase"><option value="">Select</option><option>YouTube / Social video</option><option>Film / Documentary</option><option>Game / App</option><option>Advertisement</option><option>Podcast / Stream</option><option>Other</option></select>
+              </div>
+              <div class="field">
+                <label for="lic-budget">Budget range</label>
+                <select id="lic-budget" name="budget"><option value="">Select</option><option>Under $200</option><option>$200 - $500</option><option>$500 - $1,000</option><option>$1,000+</option></select>
+              </div>
+            </div>
+            <div class="field"><label for="lic-msg">Brief or track preference</label><textarea id="lic-msg" name="message" rows="4" required></textarea></div>
+            <button class="button primary" type="submit">Request license</button>
+            <p class="form-status" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <div class="tab-panel" id="tab-press" hidden>
+          <div class="contact-card">
+            <h2>Press & media</h2>
+            <p>For media coverage, interviews, and editorial partnerships:</p>
+            <a class="button primary" href="mailto:nexastudiosmusic@gmail.com">nexastudiosmusic@gmail.com</a>
+            <p style="margin-top:1.5rem;color:var(--muted);font-size:0.9rem;">We respond within 48 hours.</p>
+          </div>
         </div>
       </section>
     </main>
 
     <footer class="site-footer"><img src="/assets/nexa-mark.png" alt="" /><p>&copy; <span id="year"></span> NEXAStudios Music. All rights reserved.</p><a href="/">Home</a></footer>
-    <script src="/script.js?v=4"></script>
+    <script src="/script.js?v=5"></script>
   </body>
 </html>

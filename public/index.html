@@ -9,7 +9,7 @@
     />
     <title>NEXAStudios Music | Global AI Music House</title>
     <link rel="preload" href="/assets/nexa-logo-v2.png" as="image" />
-    <link rel="stylesheet" href="/styles.css?v=4" />
+    <link rel="stylesheet" href="/styles.css?v=5" />
   </head>
   <body>
     <header class="site-header" id="top">
@@ -34,7 +34,7 @@
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-media" aria-hidden="true">
           <img src="/assets/nexa-logo-v2.png" alt="" />
-          <div class="pulse-grid"></div>
+          <canvas id="waveform-canvas" aria-hidden="true"></canvas>
         </div>
         <div class="hero-content">
           <p class="eyebrow">Global AI music house</p>
@@ -64,7 +64,7 @@
         </div>
       </section>
 
-      <section class="section intro">
+      <section class="section intro reveal">
         <div class="section-heading">
           <p class="eyebrow">Built for discovery</p>
           <h2>From first listen to instant download.</h2>
@@ -75,37 +75,45 @@
         </p>
       </section>
 
-      <section class="section" aria-labelledby="artists-title">
+      <section class="section reveal" aria-labelledby="artists-title">
         <div class="section-heading">
           <p class="eyebrow">Our Artists</p>
           <h2 id="artists-title">Virtual personas with regional depth.</h2>
         </div>
-        <div class="artist-grid">
-          <article class="artist-card">
-            <span>01</span>
-            <h3>Afro-highlife Fusion</h3>
+        <div class="artist-grid reveal-group">
+          <article class="artist-card" data-audio="/audio/afro-preview.wav">
+            <div class="artist-meta"><span class="artist-num">01</span><span class="artist-region">Lagos, Nigeria</span></div>
+            <h3>Kolade</h3>
+            <p class="artist-genre">Afro-highlife Fusion</p>
             <p>West African rhythms, modern percussion, warm vocal hooks, and dance-forward production.</p>
+            <button class="preview-btn" type="button" aria-label="Preview Kolade"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
           </article>
-          <article class="artist-card">
-            <span>02</span>
-            <h3>Latin Contemporary</h3>
+          <article class="artist-card" data-audio="/audio/latin-preview.wav">
+            <div class="artist-meta"><span class="artist-num">02</span><span class="artist-region">Medellin, Colombia</span></div>
+            <h3>Solara</h3>
+            <p class="artist-genre">Latin Contemporary</p>
             <p>Melodic pop, club textures, acoustic color, and bilingual-ready arrangements.</p>
+            <button class="preview-btn" type="button" aria-label="Preview Solara"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
           </article>
-          <article class="artist-card">
-            <span>03</span>
-            <h3>Middle Eastern Pulse</h3>
+          <article class="artist-card" data-audio="/audio/mideast-preview.wav">
+            <div class="artist-meta"><span class="artist-num">03</span><span class="artist-region">Dubai, UAE</span></div>
+            <h3>Zara Nour</h3>
+            <p class="artist-genre">Middle Eastern Pulse</p>
             <p>Cinematic melodic lines, deep percussion, and polished electronic atmosphere.</p>
+            <button class="preview-btn" type="button" aria-label="Preview Zara Nour"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
           </article>
-          <article class="artist-card">
-            <span>04</span>
-            <h3>Asian Future Pop</h3>
+          <article class="artist-card" data-audio="/audio/asia-preview.wav">
+            <div class="artist-meta"><span class="artist-num">04</span><span class="artist-region">Tokyo, Japan</span></div>
+            <h3>AIMI</h3>
+            <p class="artist-genre">Asian Future Pop</p>
             <p>Bright hooks, sleek synths, global pop structure, and immersive digital polish.</p>
+            <button class="preview-btn" type="button" aria-label="Preview AIMI"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
           </article>
         </div>
         <a class="section-link" href="/artists">View artist roster</a>
       </section>
 
-      <section class="split-section" aria-labelledby="studio-title">
+      <section class="split-section reveal" aria-labelledby="studio-title">
         <div>
           <p class="eyebrow">The Studio</p>
           <h2 id="studio-title">A modern music lab for borderless sound.</h2>
@@ -114,7 +122,7 @@
             production meet. Every release is built to feel native to its audience while staying unmistakably NEXA.
           </p>
         </div>
-        <div class="feature-list">
+        <div class="feature-list reveal-group">
           <div>
             <h3>Vision</h3>
             <p>Produce global music that moves across cultures without losing identity.</p>
@@ -130,7 +138,7 @@
         </div>
       </section>
 
-      <section class="store-section" aria-labelledby="store-title">
+      <section class="store-section reveal" aria-labelledby="store-title">
         <div class="section-heading">
           <p class="eyebrow">Store</p>
           <h2 id="store-title">A centralized catalog for albums and tracks.</h2>
@@ -153,12 +161,12 @@
         </div>
       </section>
 
-      <section class="section" aria-labelledby="licensing-title">
+      <section class="section reveal" aria-labelledby="licensing-title">
         <div class="section-heading">
           <p class="eyebrow">Licensing / Sync</p>
           <h2 id="licensing-title">Original music for creators and brands.</h2>
         </div>
-        <div class="license-grid">
+        <div class="license-grid reveal-group">
           <article>
             <h3>Creator License</h3>
             <p>For YouTube, podcasts, livestreams, short-form video, and independent channels.</p>
@@ -174,7 +182,7 @@
         </div>
       </section>
 
-      <section class="split-section faq-section" aria-labelledby="faq-title">
+      <section class="split-section faq-section reveal" aria-labelledby="faq-title">
         <div>
           <p class="eyebrow">FAQ</p>
           <h2 id="faq-title">Quick answers before checkout.</h2>
@@ -195,12 +203,12 @@
         </div>
       </section>
 
-      <section class="section" id="blog" aria-labelledby="blog-title">
+      <section class="section reveal" id="blog" aria-labelledby="blog-title">
         <div class="section-heading">
           <p class="eyebrow">Blog</p>
           <h2 id="blog-title">Stories behind the sound.</h2>
         </div>
-        <div class="blog-grid">
+        <div class="blog-grid reveal-group">
           <article>
             <p>Culture</p>
             <h3>The history of Igbo highlife percussion in the modern era</h3>
@@ -217,7 +225,7 @@
         <a class="section-link" href="/blog">Read editorial plan</a>
       </section>
 
-      <section class="contact-section" aria-labelledby="contact-title">
+      <section class="contact-section reveal" aria-labelledby="contact-title">
         <div>
           <p class="eyebrow">Contact</p>
           <h2 id="contact-title">Ready to build, buy, or license the catalog?</h2>
@@ -232,6 +240,12 @@
       <a href="#top">Back to top</a>
     </footer>
 
-    <script src="/script.js?v=4"></script>
+    <div id="audio-bar" role="status" aria-live="polite">
+      <button id="audio-bar-toggle" aria-label="Pause preview"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><rect x="2" y="1" width="4" height="12"/><rect x="8" y="1" width="4" height="12"/></svg></button>
+      <div><div class="track-label">Now previewing</div><div class="track-name" id="audio-bar-title">-</div></div>
+      <progress id="audio-progress" value="0" max="1"></progress>
+      <button id="audio-bar-close" aria-label="Close player">x</button>
+    </div>
+    <script src="/script.js?v=5"></script>
   </body>
 </html>

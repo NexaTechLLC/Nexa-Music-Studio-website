@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Explore NEXAStudios Music virtual artist personas and regional sound worlds." />
     <title>Artists | NEXAStudios Music</title>
-    <link rel="stylesheet" href="/styles.css?v=4" />
+    <link rel="stylesheet" href="/styles.css?v=5" />
   </head>
   <body>
     <header class="site-header" id="top">
@@ -24,7 +24,7 @@
     </header>
 
     <main>
-      <section class="page-hero">
+      <section class="page-hero reveal">
         <div>
           <p class="eyebrow">Our Artists</p>
           <h1>Regional personas. Global sound.</h1>
@@ -33,27 +33,35 @@
         <img src="/assets/nexa-mark.png" alt="NEXAStudios Music mark" />
       </section>
 
-      <section class="section page-section">
-        <div class="artist-grid detailed-grid">
-          <article class="artist-card">
-            <span>01</span>
-            <h3>Afro-highlife Fusion</h3>
+      <section class="section page-section reveal">
+        <div class="artist-grid detailed-grid reveal-group">
+          <article class="artist-card" data-audio="/audio/afro-preview.wav">
+            <div class="artist-meta"><span class="artist-num">01</span><span class="artist-region">Lagos, Nigeria</span></div>
+            <h3>Kolade</h3>
+            <p class="artist-genre">Afro-highlife Fusion</p>
             <p>West African percussion, Pidgin-friendly hooks, warm bass movement, and modern digital polish for dance and lifestyle releases.</p>
+            <button class="preview-btn" type="button" aria-label="Preview Kolade"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
           </article>
-          <article class="artist-card">
-            <span>02</span>
-            <h3>Latin Contemporary</h3>
+          <article class="artist-card" data-audio="/audio/latin-preview.wav">
+            <div class="artist-meta"><span class="artist-num">02</span><span class="artist-region">Medellin, Colombia</span></div>
+            <h3>Solara</h3>
+            <p class="artist-genre">Latin Contemporary</p>
             <p>Melodic pop structures, rhythmic guitar color, club-ready drums, and bilingual campaign potential for Spanish-speaking markets.</p>
+            <button class="preview-btn" type="button" aria-label="Preview Solara"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
           </article>
-          <article class="artist-card">
-            <span>03</span>
-            <h3>Middle Eastern Pulse</h3>
+          <article class="artist-card" data-audio="/audio/mideast-preview.wav">
+            <div class="artist-meta"><span class="artist-num">03</span><span class="artist-region">Dubai, UAE</span></div>
+            <h3>Zara Nour</h3>
+            <p class="artist-genre">Middle Eastern Pulse</p>
             <p>Cinematic tonal phrases, deep percussion beds, atmospheric synths, and dramatic arrangements for premium visual storytelling.</p>
+            <button class="preview-btn" type="button" aria-label="Preview Zara Nour"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
           </article>
-          <article class="artist-card">
-            <span>04</span>
-            <h3>Asian Future Pop</h3>
+          <article class="artist-card" data-audio="/audio/asia-preview.wav">
+            <div class="artist-meta"><span class="artist-num">04</span><span class="artist-region">Tokyo, Japan</span></div>
+            <h3>AIMI</h3>
+            <p class="artist-genre">Asian Future Pop</p>
             <p>Bright melodic top lines, sleek electronic texture, polished pop builds, and high-energy hooks for global streaming playlists.</p>
+            <button class="preview-btn" type="button" aria-label="Preview AIMI"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
           </article>
         </div>
       </section>
@@ -64,6 +72,12 @@
       <p>&copy; <span id="year"></span> NEXAStudios Music. All rights reserved.</p>
       <a href="/contact">Contact</a>
     </footer>
-    <script src="/script.js?v=4"></script>
+    <div id="audio-bar" role="status" aria-live="polite">
+      <button id="audio-bar-toggle" aria-label="Pause preview"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><rect x="2" y="1" width="4" height="12"/><rect x="8" y="1" width="4" height="12"/></svg></button>
+      <div><div class="track-label">Now previewing</div><div class="track-name" id="audio-bar-title">-</div></div>
+      <progress id="audio-progress" value="0" max="1"></progress>
+      <button id="audio-bar-close" aria-label="Close player">x</button>
+    </div>
+    <script src="/script.js?v=5"></script>
   </body>
 </html>
