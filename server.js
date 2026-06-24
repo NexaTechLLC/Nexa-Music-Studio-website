@@ -19,6 +19,9 @@ const adminEmails = new Set(
     .map((email) => email.trim().toLowerCase())
     .filter(Boolean)
 );
+const bootstrapAdminEmail = String(process.env.ADMIN_EMAIL || "").trim().toLowerCase();
+const bootstrapAdminPassword = String(process.env.ADMIN_PASSWORD || "");
+const bootstrapAdminName = String(process.env.ADMIN_NAME || "NEXAStudios Admin").trim();
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
@@ -145,6 +148,32 @@ function getUserFromSession(request) {
 
 function isAdminUser(user) {
   return Boolean(user && (user.role === "admin" || adminEmails.has(String(user.email || "").toLowerCase())));
+}
+
+function bootstrapAdminFromEnv() {
+  if (!bootstrapAdminEmail || !bootstrapAdminPassword) return;
+
+  const users = getUsers();
+  const existing = users.find((user) => user.email === bootstrapAdminEmail);
+
+  if (existing) {
+    existing.name = existing.name || bootstrapAdminName;
+    existing.password = hashPassword(bootstrapAdminPassword);
+    existing.role = "admin";
+    existing.updatedAt = new Date().toISOString();
+  } else {
+    users.push({
+      id: crypto.randomUUID(),
+      email: bootstrapAdminEmail,
+      password: hashPassword(bootstrapAdminPassword),
+      name: bootstrapAdminName,
+      role: "admin",
+      createdAt: new Date().toISOString()
+    });
+  }
+
+  saveUsers(users);
+  adminEmails.add(bootstrapAdminEmail);
 }
 
 function collectBody(request, limitBytes = 30 * 1024 * 1024) {
@@ -505,6 +534,7 @@ async function handleApi(request, response, pathname) {
 }
 
 ensureStorage();
+bootstrapAdminFromEnv();
 
 const server = http.createServer(async (request, response) => {
   const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
