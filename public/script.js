@@ -358,15 +358,17 @@ function publicTrackButton(item, label = "Listen") {
   return `<button class="track-link listen-btn" data-audio="${escapeHtml(item.url)}" data-snippet="${item.isSnippet ? "true" : "false"}" type="button">${escapeHtml(label)}</button>`;
 }
 
+function publicTrackMeta(item) {
+  const kind = item.isSnippet ? "snippet" : String(item.kind || "track");
+  const context = item.album || item.genre || "";
+  return context && context.toLowerCase() !== kind.toLowerCase() ? `${context} · ${kind}` : kind;
+}
+
 function publicCatalogItem(item) {
-  const kind = item.isSnippet ? "Snippet" : item.kind || "Track";
   return `
     <article class="catalog-track">
-      <div>
-        <strong>${escapeHtml(item.title)}</strong>
-        <span>${escapeHtml(item.album || item.genre || kind)} · ${escapeHtml(kind)}</span>
-      </div>
-      ${publicTrackButton(item)}
+      ${publicTrackButton(item, item.title)}
+      <span>${escapeHtml(publicTrackMeta(item))}</span>
     </article>
   `;
 }
@@ -378,7 +380,7 @@ function storeCatalogCard(item) {
       <div class="product-info">
         <p class="eyebrow">${escapeHtml(item.artist || "NEXAStudios™ Music")} · ${escapeHtml(item.album || "Release")}</p>
         <h3>${escapeHtml(item.title)}</h3>
-        <p>${escapeHtml(item.genre || item.kind || "NEXAStudios™ Music catalog release")} uploaded from the label media vault.</p>
+        <p>${escapeHtml(publicTrackMeta(item))} uploaded from the label media vault.</p>
         <div class="product-actions">
           <span class="product-price">$9.99</span>
           ${publicTrackButton(item, item.isSnippet ? "Preview" : "Listen")}

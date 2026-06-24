@@ -459,8 +459,10 @@ h3 {
 }
 
 .artist-catalog {
-  display: grid;
-  gap: 0.7rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 1rem;
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--line);
@@ -469,24 +471,10 @@ h3 {
 .catalog-track {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
   min-width: 0;
-  padding: 0.8rem;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.055);
-}
-
-.catalog-track div {
-  display: grid;
-  min-width: 0;
-}
-
-.catalog-track strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  padding-right: 1rem;
 }
 
 .catalog-track span,
