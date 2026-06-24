@@ -1,6 +1,6 @@
-# NEXAStudios Music Website
+# NEXAStudios™ Music Website
 
-A modern Node.js website for NEXAStudios Music, built as a dependency-free static site served by a small Node HTTP server.
+A modern Node.js website for NEXAStudios™ Music, built as a dependency-free static site served by a small Node HTTP server.
 
 ## Run locally
 

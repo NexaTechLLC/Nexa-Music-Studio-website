@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="NEXAStudios Music store for albums, tracks, bundles, and premium audio downloads." />
-    <title>Store | NEXAStudios Music</title>
+    <meta name="description" content="NEXAStudios™ Music store for albums, tracks, bundles, and premium audio downloads." />
+    <title>Store | NEXAStudios™ Music</title>
     <link rel="stylesheet" href="/styles.css?v=5" />
   </head>
   <body>
     <header class="site-header" id="top">
-      <a class="brand" href="/" aria-label="NEXAStudios Music home"><img src="/assets/nexa-mark.png" alt="" /><span>NEXAStudios Music</span></a>
+      <a class="brand" href="/" aria-label="NEXAStudios™ Music home"><img src="/assets/nexa-mark.png" alt="" /><span>NEXAStudios™ Music</span></a>
       <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><span></span><span></span></button>
       <nav class="site-nav" aria-label="Primary navigation">
         <a href="/artists">Artists</a>
@@ -17,6 +17,7 @@
         <a href="/store" aria-current="page">Store</a>
         <a href="/blog">Blog</a>
         <a href="/contact">Contact</a>
+        <a href="https://www.youtube.com/@NEXAStudiosTMMusic" target="_blank" rel="noopener">YouTube</a>
       </nav>
     </header>
 
@@ -25,72 +26,44 @@
         <div>
           <p class="eyebrow">Store</p>
           <h1>One catalog for albums, tracks, and bundles.</h1>
-          <p>A centralized storefront gives listeners one place to buy every NEXAStudios Music release across all regional artist personas.</p>
+          <p>A centralized storefront gives listeners one place to buy releases from BLACK INDIGO and DR. AMAKA ALOY.</p>
         </div>
-        <img src="/assets/nexa-logo-classic.png" alt="NEXAStudios Music logo" />
+        <img src="/assets/nexa-logo-classic.png" alt="NEXAStudios™ Music logo" />
       </section>
 
       <section class="section page-section reveal">
         <div class="store-filters" role="group" aria-label="Filter catalog">
           <button class="filter-btn active" type="button" data-filter="all">All</button>
-          <button class="filter-btn" type="button" data-filter="west-africa">West Africa</button>
-          <button class="filter-btn" type="button" data-filter="latin">Latin</button>
-          <button class="filter-btn" type="button" data-filter="middle-east">Middle East</button>
-          <button class="filter-btn" type="button" data-filter="asia">Asia</button>
+          <button class="filter-btn" type="button" data-filter="afrobeat-hiphop">Afrobeat / Hiphop</button>
+          <button class="filter-btn" type="button" data-filter="gospel">Gospel</button>
         </div>
 
         <div id="purchase-success" class="purchase-success" hidden>Purchase complete. Check your email for your download link.</div>
 
         <div class="product-grid reveal-group" id="product-grid">
-          <article class="product-card" data-region="west-africa" data-audio="/audio/afro-preview.wav">
+          <article class="product-card" data-region="afrobeat-hiphop" data-audio="/audio/afro-preview.wav">
             <div class="product-thumb afro-thumb"></div>
             <div class="product-info">
-              <p class="eyebrow">West Africa · Album</p>
-              <h3>Afro-Highlife Vol. 1</h3>
-              <p>10 tracks of modern highlife, Pidgin-fused dance production.</p>
+              <p class="eyebrow">BLACK INDIGO · Album</p>
+              <h3>Afrobeat / Hiphop Vol. 1</h3>
+              <p>Modern Afrobeat pulse, hiphop edge, bold hooks, and high-energy production.</p>
               <div class="product-actions">
                 <span class="product-price">$9.99</span>
-                <button class="preview-btn" type="button" aria-label="Preview Afro-Highlife Vol. 1"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
-                <button class="button primary buy-btn" type="button" data-price-id="price_REPLACE_AFRO" data-name="Afro-Highlife Vol. 1">Buy</button>
+                <button class="preview-btn" type="button" aria-label="Preview Afrobeat / Hiphop Vol. 1"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
+                <button class="button primary buy-btn" type="button" data-price-id="price_REPLACE_BLACK_INDIGO" data-name="Afrobeat / Hiphop Vol. 1">Buy</button>
               </div>
             </div>
           </article>
-          <article class="product-card" data-region="latin" data-audio="/audio/latin-preview.wav">
-            <div class="product-thumb latin-thumb"></div>
+          <article class="product-card" data-region="gospel" data-audio="/audio/gospel-preview.wav">
+            <div class="product-thumb gospel-thumb"></div>
             <div class="product-info">
-              <p class="eyebrow">Latin · Album</p>
-              <h3>Latin Contemporary Vol. 1</h3>
-              <p>10 tracks of melodic pop, club textures, and acoustic rhythm.</p>
+              <p class="eyebrow">DR. AMAKA ALOY · Album</p>
+              <h3>Gospel Worship Vol. 1</h3>
+              <p>Faith-centered worship, inspirational vocals, uplifting arrangements, and devotional storytelling.</p>
               <div class="product-actions">
                 <span class="product-price">$9.99</span>
-                <button class="preview-btn" type="button" aria-label="Preview Latin Contemporary Vol. 1"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
-                <button class="button primary buy-btn" type="button" data-price-id="price_REPLACE_LATIN" data-name="Latin Contemporary Vol. 1">Buy</button>
-              </div>
-            </div>
-          </article>
-          <article class="product-card" data-region="middle-east" data-audio="/audio/mideast-preview.wav">
-            <div class="product-thumb mideast-thumb"></div>
-            <div class="product-info">
-              <p class="eyebrow">Middle East · Album</p>
-              <h3>Middle Eastern Pulse Vol. 1</h3>
-              <p>10 tracks of cinematic percussion, atmosphere, and drama.</p>
-              <div class="product-actions">
-                <span class="product-price">$9.99</span>
-                <button class="preview-btn" type="button" aria-label="Preview Middle Eastern Pulse Vol. 1"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
-                <button class="button primary buy-btn" type="button" data-price-id="price_REPLACE_MIDEAST" data-name="Middle Eastern Pulse Vol. 1">Buy</button>
-              </div>
-            </div>
-          </article>
-          <article class="product-card" data-region="asia" data-audio="/audio/asia-preview.wav">
-            <div class="product-thumb asia-thumb"></div>
-            <div class="product-info">
-              <p class="eyebrow">Asia · Album</p>
-              <h3>Asian Future Pop Vol. 1</h3>
-              <p>10 tracks of bright hooks, sleek synths, polished pop builds.</p>
-              <div class="product-actions">
-                <span class="product-price">$9.99</span>
-                <button class="preview-btn" type="button" aria-label="Preview Asian Future Pop Vol. 1"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
-                <button class="button primary buy-btn" type="button" data-price-id="price_REPLACE_ASIA" data-name="Asian Future Pop Vol. 1">Buy</button>
+                <button class="preview-btn" type="button" aria-label="Preview Gospel Worship Vol. 1"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
+                <button class="button primary buy-btn" type="button" data-price-id="price_REPLACE_AMAKA_ALOY" data-name="Gospel Worship Vol. 1">Buy</button>
               </div>
             </div>
           </article>
@@ -123,7 +96,7 @@
       </section>
     </main>
 
-    <footer class="site-footer"><img src="/assets/nexa-mark.png" alt="" /><p>&copy; <span id="year"></span> NEXAStudios Music. All rights reserved.</p><a href="/contact">Contact</a></footer>
+    <footer class="site-footer"><img src="/assets/nexa-mark.png" alt="" /><p>&copy; <span id="year"></span> NEXAStudios™ Music. All rights reserved.</p><a href="https://www.youtube.com/@NEXAStudiosTMMusic" target="_blank" rel="noopener">YouTube</a><a href="/contact">Contact</a></footer>
     <div id="audio-bar" role="status" aria-live="polite">
       <button id="audio-bar-toggle" aria-label="Pause preview"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><rect x="2" y="1" width="4" height="12"/><rect x="8" y="1" width="4" height="12"/></svg></button>
       <div><div class="track-label">Now previewing</div><div class="track-name" id="audio-bar-title">-</div></div>

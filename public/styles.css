@@ -303,7 +303,7 @@ h3 {
 .license-grid,
 .blog-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
   margin-top: 2rem;
 }
@@ -503,7 +503,7 @@ h3 {
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1rem;
 }
 
@@ -713,6 +713,10 @@ h3 {
 
 .latin-thumb {
   background: linear-gradient(135deg, #0a001a, #ff2aa8 140%);
+}
+
+.gospel-thumb {
+  background: linear-gradient(135deg, #0f1020, #11c8ff 75%, #ffffff 150%);
 }
 
 .mideast-thumb {
