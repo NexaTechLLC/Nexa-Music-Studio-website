@@ -152,21 +152,6 @@ const builtInTracks = [
     mimeType: "audio/mpeg",
     releaseDate: "2026-06-24",
     baselineStreams: 18420
-  },
-  {
-    id: "akala-aka-m-o",
-    title: "Akala aka m o",
-    artistId: "dr-amaka-aloy",
-    artist: "DR. AMAKA ALOY",
-    albumId: "amaka-aloy-gospel-singles",
-    album: "DR. AMAKA ALOY Gospel Singles",
-    genre: "Gospel Music",
-    kind: "full track",
-    url: "/audio/1782310018878-a328b29b-akala-aka-m-o-1-female.mp3",
-    snippetUrl: "/audio/1782310018878-a328b29b-akala-aka-m-o-1-female-snippet.mp3",
-    mimeType: "audio/mpeg",
-    releaseDate: "2026-06-24",
-    baselineStreams: 15670
   }
 ];
 
@@ -181,6 +166,22 @@ function mergeById(existing, seeded) {
 function seedLabelData() {
   writeJsonFile(artistsFile, mergeById(readJsonFile(artistsFile), seedArtists));
   writeJsonFile(albumsFile, mergeById(readJsonFile(albumsFile), seedAlbums));
+}
+
+function cleanArtistCatalogData() {
+  const isAmakaAkala = (item) => {
+    const title = String(item.title || "").toLowerCase();
+    const artist = String(item.artist || "").toLowerCase();
+    return title.includes("akala aka m o") && (item.artistId === "dr-amaka-aloy" || artist.includes("amaka"));
+  };
+
+  const media = readJsonFile(mediaIndexFile);
+  const filteredMedia = media.filter((item) => !isAmakaAkala(item));
+  if (filteredMedia.length !== media.length) writeJsonFile(mediaIndexFile, filteredMedia);
+
+  const streams = readJsonFile(streamsFile);
+  const filteredStreams = streams.filter((event) => event.trackId !== "akala-aka-m-o");
+  if (filteredStreams.length !== streams.length) writeJsonFile(streamsFile, filteredStreams);
 }
 
 function hashPassword(password) {
@@ -855,6 +856,7 @@ async function handleApi(request, response, pathname) {
 
 ensureStorage();
 seedLabelData();
+cleanArtistCatalogData();
 bootstrapAdminFromEnv();
 
 const server = http.createServer(async (request, response) => {

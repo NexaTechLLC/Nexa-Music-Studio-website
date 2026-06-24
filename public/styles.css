@@ -458,6 +458,50 @@ h3 {
   color: var(--muted);
 }
 
+.artist-catalog {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.catalog-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 0;
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.catalog-track div {
+  display: grid;
+  min-width: 0;
+}
+
+.catalog-track strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.catalog-track span,
+.empty-state.compact {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.store-catalog {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
 .split-section {
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;
@@ -1250,6 +1294,7 @@ h3 {
   .license-grid,
   .blog-grid,
   .product-grid,
+  .store-catalog,
   .media-library-list,
   .admin-stats {
     grid-template-columns: repeat(2, 1fr);
@@ -1296,6 +1341,7 @@ h3 {
   .license-grid,
   .blog-grid,
   .product-grid,
+  .store-catalog,
   .media-library-list,
   .admin-stats,
   .field-row {

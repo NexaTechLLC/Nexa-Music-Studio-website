@@ -339,6 +339,84 @@ async function loadMediaLibrary() {
   }
 }
 
+function artistSlug(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/dr\./g, "dr")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function isPublicMedia(item) {
+  const title = String(item.title || "").toLowerCase();
+  const artist = String(item.artist || "").toLowerCase();
+  const isAmakaAkala = title.includes("akala aka m o") && (item.artistId === "dr-amaka-aloy" || artist.includes("amaka"));
+  return !isAmakaAkala && String(item.releaseStatus || "active").toLowerCase() === "active";
+}
+
+function publicTrackButton(item, label = "Listen") {
+  return `<button class="track-link listen-btn" data-audio="${escapeHtml(item.url)}" data-snippet="${item.isSnippet ? "true" : "false"}" type="button">${escapeHtml(label)}</button>`;
+}
+
+function publicCatalogItem(item) {
+  const kind = item.isSnippet ? "Snippet" : item.kind || "Track";
+  return `
+    <article class="catalog-track">
+      <div>
+        <strong>${escapeHtml(item.title)}</strong>
+        <span>${escapeHtml(item.album || item.genre || kind)} · ${escapeHtml(kind)}</span>
+      </div>
+      ${publicTrackButton(item)}
+    </article>
+  `;
+}
+
+function storeCatalogCard(item) {
+  return `
+    <article class="product-card" data-region="${escapeHtml(artistSlug(item.genre || item.artist))}">
+      <div class="product-thumb afro-thumb"></div>
+      <div class="product-info">
+        <p class="eyebrow">${escapeHtml(item.artist || "NEXAStudios™ Music")} · ${escapeHtml(item.album || "Release")}</p>
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.genre || item.kind || "NEXAStudios™ Music catalog release")} uploaded from the label media vault.</p>
+        <div class="product-actions">
+          <span class="product-price">$9.99</span>
+          ${publicTrackButton(item, item.isSnippet ? "Preview" : "Listen")}
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+async function initPublicCatalog() {
+  const artistCatalogs = document.querySelectorAll("[data-public-catalog]");
+  const storeCatalog = document.querySelector("[data-store-catalog]");
+  if (!artistCatalogs.length && !storeCatalog) return;
+
+  try {
+    const res = await fetch("/api/media");
+    if (!res.ok) throw new Error("Media API failed");
+    const data = await res.json();
+    const media = (data.media || []).filter(isPublicMedia);
+
+    artistCatalogs.forEach((container) => {
+      const artistId = container.dataset.publicCatalog;
+      const tracks = media.filter((item) => item.artistId === artistId || artistSlug(item.artist) === artistId);
+      container.innerHTML = tracks.length
+        ? tracks.map(publicCatalogItem).join("")
+        : '<p class="empty-state compact">No public releases uploaded yet.</p>';
+    });
+
+    if (storeCatalog) {
+      storeCatalog.innerHTML = media.length ? media.map(storeCatalogCard).join("") : "";
+    }
+  } catch {
+    artistCatalogs.forEach((container) => {
+      container.innerHTML = '<p class="empty-state compact">Catalog uploads could not be loaded.</p>';
+    });
+  }
+}
+
 function optionMarkup(items, labelKey = "name") {
   return [
     '<option value="">Select</option>',
@@ -665,7 +743,6 @@ function initAudioModal() {
   const modalPlayer = document.getElementById("audio-modal-player");
   const modalTitle = document.getElementById("audio-modal-title");
   const closeBtn = document.querySelector(".audio-modal-close");
-  const listenBtns = document.querySelectorAll(".listen-btn");
   const playPauseBtn = document.getElementById("audio-play-pause");
   const progressBar = document.getElementById("audio-progress-bar");
   const currentTimeEl = document.getElementById("audio-current-time");
@@ -689,8 +766,8 @@ function initAudioModal() {
     }
   }
 
-  async function openModal(audioSrc, title) {
-    const isSnippet = audioSrc.includes("-snippet");
+  async function openModal(audioSrc, title, snippetOverride = false) {
+    const isSnippet = snippetOverride || audioSrc.includes("-snippet");
     
     if (!isSnippet) {
       const user = await checkAuth();
@@ -750,12 +827,12 @@ function initAudioModal() {
     modalPlayer.volume = volumeSlider.value;
   });
 
-  listenBtns.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const audioSrc = btn.dataset.audio;
-      const title = btn.textContent || "Now Playing";
-      if (audioSrc) openModal(audioSrc, title);
-    });
+  document.addEventListener("click", (event) => {
+    const btn = event.target.closest(".listen-btn");
+    if (!btn) return;
+    const audioSrc = btn.dataset.audio;
+    const title = btn.textContent || "Now Playing";
+    if (audioSrc) openModal(audioSrc, title, btn.dataset.snippet === "true");
   });
 
   modalPlayer.addEventListener("error", (e) => {
@@ -785,5 +862,6 @@ initPurchaseSuccess();
 initMediaUpload();
 initAdminForms();
 initAuthForms();
+initPublicCatalog();
 initAudioModal();
 initAdminGate();
