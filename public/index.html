@@ -9,7 +9,7 @@
     />
     <title>NEXAStudios™ Music | Global AI Music House</title>
     <link rel="preload" href="/assets/nexa-logo-v2.png" as="image" />
-    <link rel="stylesheet" href="/styles.css?v=5" />
+    <link rel="stylesheet" href="/styles.css?v=6" />
   </head>
   <body>
     <header class="site-header" id="top">
@@ -28,6 +28,7 @@
         <a href="/blog">Blog</a>
         <a href="/contact">Contact</a>
         <a href="/auth">Sign In</a>
+        <a href="/admin">Admin</a>
         <a href="https://www.youtube.com/@NEXAStudiosTMMusic" target="_blank" rel="noopener">YouTube</a>
       </nav>
     </header>
@@ -37,6 +38,9 @@
         <div class="hero-media" aria-hidden="true">
           <img src="/assets/nexa-logo-v2.png" alt="" />
           <canvas id="waveform-canvas" aria-hidden="true"></canvas>
+          <span class="hero-orbit orbit-one"></span>
+          <span class="hero-orbit orbit-two"></span>
+          <span class="hero-scanline"></span>
         </div>
         <div class="hero-content">
           <p class="eyebrow">Global AI music house</p>
@@ -45,10 +49,7 @@
             A digital record label and direct-to-fan storefront creating culturally rich,
             future-ready music for listeners, creators, brands, and visual media.
           </p>
-          <div class="hero-actions" aria-label="Primary actions">
-            <a class="button primary" href="/store">Explore Store</a>
-            <a class="button secondary" href="/studio">Enter Studio</a>
-          </div>
+          <div class="hero-signal" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
         </div>
         <div class="hero-stats" aria-label="Studio highlights">
           <div>
@@ -258,6 +259,6 @@
         <audio id="audio-modal-player" preload="metadata"></audio>
       </div>
     </div>
-    <script src="/script.js?v=5"></script>
+    <script src="/script.js?v=6"></script>
   </body>
 </html>

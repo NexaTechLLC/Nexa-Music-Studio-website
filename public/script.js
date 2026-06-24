@@ -402,6 +402,16 @@ async function checkAuth() {
   }
 }
 
+function updateAdminLinks(user) {
+  document.querySelectorAll('a[href="/admin"]').forEach((link) => {
+    if (!user || user.role !== "admin") {
+      link.hidden = true;
+    } else {
+      link.hidden = false;
+    }
+  });
+}
+
 function initAuthForms() {
   const loginForm = document.getElementById("login-form");
   const signupForm = document.getElementById("signup-form");
@@ -450,6 +460,7 @@ function initAuthForms() {
         loginForm.classList.add("hidden");
         signupForm.classList.add("hidden");
         authSuccess.hidden = false;
+        authSuccess.querySelector(".admin-link")?.toggleAttribute("hidden", data.user?.role !== "admin");
       } else {
         status.textContent = data.error || "Sign in failed";
         status.className = "form-status err";
@@ -487,6 +498,7 @@ function initAuthForms() {
         loginForm.classList.add("hidden");
         signupForm.classList.add("hidden");
         authSuccess.hidden = false;
+        authSuccess.querySelector(".admin-link")?.toggleAttribute("hidden", data.user?.role !== "admin");
       } else {
         status.textContent = data.error || "Sign up failed";
         status.className = "form-status err";
@@ -604,6 +616,16 @@ function initAudioModal() {
   });
 }
 
+async function initAdminGate() {
+  const isAdminPage = Boolean(document.getElementById("media-upload-form") && document.body.classList.contains("admin-page"));
+  const user = await checkAuth();
+  updateAdminLinks(user);
+
+  if (isAdminPage && (!user || user.role !== "admin")) {
+    window.location.href = "/auth";
+  }
+}
+
 initHeader();
 initWaveform();
 initReveal();
@@ -616,3 +638,4 @@ initPurchaseSuccess();
 initMediaUpload();
 initAuthForms();
 initAudioModal();
+initAdminGate();

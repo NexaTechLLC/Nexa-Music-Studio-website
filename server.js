@@ -13,6 +13,12 @@ const contactFile = path.join(storageDir, "contact-submissions.json");
 const mediaIndexFile = path.join(metaDir, "media-library.json");
 const usersFile = path.join(metaDir, "users.json");
 const sessionsFile = path.join(metaDir, "sessions.json");
+const adminEmails = new Set(
+  String(process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean)
+);
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
@@ -135,6 +141,10 @@ function getUserFromSession(request) {
   
   const users = getUsers();
   return users.find(u => u.id === session.userId);
+}
+
+function isAdminUser(user) {
+  return Boolean(user && (user.role === "admin" || adminEmails.has(String(user.email || "").toLowerCase())));
 }
 
 function collectBody(request, limitBytes = 30 * 1024 * 1024) {
@@ -290,6 +300,12 @@ function parseDataUrl(dataUrl) {
 }
 
 async function handleMediaUpload(request, response) {
+  const user = getUserFromSession(request);
+  if (!isAdminUser(user)) {
+    sendJson(response, 403, { ok: false, error: "Admin access is required to upload media." });
+    return;
+  }
+
   const body = JSON.parse(await collectBody(request) || "{}");
   const parsed = parseDataUrl(body.dataUrl);
 
@@ -359,6 +375,7 @@ async function handleSignup(request, response) {
     email,
     password: hashPassword(password),
     name,
+    role: users.length === 0 || adminEmails.has(email) ? "admin" : "user",
     createdAt: new Date().toISOString()
   };
 
@@ -369,7 +386,7 @@ async function handleSignup(request, response) {
   
   sendJson(response, 201, { 
     ok: true, 
-    user: { id: user.id, email: user.email, name: user.name },
+    user: { id: user.id, email: user.email, name: user.name, role: user.role },
     token: session.token 
   });
 }
@@ -396,7 +413,7 @@ async function handleLogin(request, response) {
   
   sendJson(response, 200, { 
     ok: true, 
-    user: { id: user.id, email: user.email, name: user.name },
+    user: { id: user.id, email: user.email, name: user.name, role: isAdminUser(user) ? "admin" : "user" },
     token: session.token 
   });
 }
@@ -473,7 +490,7 @@ async function handleApi(request, response, pathname) {
     if (pathname === "/api/me" && request.method === "GET") {
       const user = getUserFromSession(request);
       if (user) {
-        sendJson(response, 200, { ok: true, user: { id: user.id, email: user.email, name: user.name } });
+        sendJson(response, 200, { ok: true, user: { id: user.id, email: user.email, name: user.name, role: isAdminUser(user) ? "admin" : "user" } });
       } else {
         sendJson(response, 401, { ok: false, error: "Not authenticated" });
       }
@@ -491,6 +508,12 @@ ensureStorage();
 
 const server = http.createServer(async (request, response) => {
   const url = new URL(request.url || "/", `http://${request.headers.host || "localhost"}`);
+
+  if ((url.pathname === "/admin" || url.pathname === "/admin.html") && !isAdminUser(getUserFromSession(request))) {
+    response.writeHead(302, { Location: "/auth" });
+    response.end();
+    return;
+  }
 
   if (url.pathname.startsWith("/api/")) {
     const handled = await handleApi(request, response, url.pathname);
