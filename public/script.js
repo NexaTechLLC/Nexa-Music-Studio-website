@@ -154,6 +154,12 @@ function initAudioPreviews() {
     });
   });
 
+  document.addEventListener("click", (event) => {
+    const btn = event.target.closest(".preview-btn[data-audio]");
+    if (!btn) return;
+    play(btn.dataset.audio, btn.closest(".catalog-track")?.querySelector(".track-link")?.textContent || "NEXAStudios preview", btn);
+  });
+
   audio.addEventListener("timeupdate", () => {
     if (progress && audio.duration) progress.value = audio.currentTime / audio.duration;
   });
@@ -351,11 +357,21 @@ function isPublicMedia(item) {
   const title = String(item.title || "").toLowerCase();
   const artist = String(item.artist || "").toLowerCase();
   const isAmakaAkala = title.includes("akala aka m o") && (item.artistId === "dr-amaka-aloy" || artist.includes("amaka"));
-  return !isAmakaAkala && String(item.releaseStatus || "active").toLowerCase() === "active";
+  const isBuiltInOdu = title === "odu mi o";
+  return !isAmakaAkala && !isBuiltInOdu && String(item.releaseStatus || "active").toLowerCase() === "active";
 }
 
 function publicTrackButton(item, label = "Listen") {
   return `<button class="track-link listen-btn" data-audio="${escapeHtml(item.url)}" data-snippet="${item.isSnippet ? "true" : "false"}" type="button">${escapeHtml(label)}</button>`;
+}
+
+function publicPreviewButton(item) {
+  return `
+    <button class="preview-btn" data-audio="${escapeHtml(item.url)}" type="button" aria-label="Preview ${escapeHtml(item.title)}">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg>
+      <span>Preview</span>
+    </button>
+  `;
 }
 
 function publicTrackMeta(item) {
@@ -367,8 +383,8 @@ function publicTrackMeta(item) {
 function publicCatalogItem(item) {
   return `
     <article class="catalog-track">
+      ${publicPreviewButton(item)}
       ${publicTrackButton(item, item.title)}
-      <span>${escapeHtml(publicTrackMeta(item))}</span>
     </article>
   `;
 }
