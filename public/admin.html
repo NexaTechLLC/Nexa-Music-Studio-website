@@ -3,9 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Admin dashboard for NEXAStudios™ Music media uploads." />
+    <meta name="description" content="Admin dashboard for NEXAStudios™ Music catalog, artists, albums, streams, and media uploads." />
     <title>Admin Dashboard | NEXAStudios™ Music</title>
-    <link rel="stylesheet" href="/styles.css?v=6" />
+    <link rel="stylesheet" href="/styles.css?v=7" />
   </head>
   <body class="admin-page">
     <header class="site-header" id="top">
@@ -17,7 +17,6 @@
         <a href="/store">Store</a>
         <a href="/blog">Blog</a>
         <a href="/contact">Contact</a>
-        <a href="/auth">Sign In</a>
         <a href="/admin" aria-current="page">Admin</a>
       </nav>
     </header>
@@ -26,38 +25,121 @@
       <section class="page-hero reveal">
         <div>
           <p class="eyebrow">Admin Dashboard</p>
-          <h1>Backend Media Vault</h1>
-          <p>Admin-only upload area for artist previews, music videos, behind-the-scenes clips, full tracks, and catalog snippets.</p>
+          <h1>Label operations hub.</h1>
+          <p>Manage artists, albums, audio and video uploads, catalog metadata, and streaming performance for NEXAStudios™ Music.</p>
         </div>
         <img src="/assets/nexa-mark.png" alt="NEXAStudios™ Music mark" />
       </section>
 
+      <section class="section page-section reveal">
+        <div class="admin-stats" id="admin-stats">
+          <article><span>Artists</span><strong>-</strong></article>
+          <article><span>Albums</span><strong>-</strong></article>
+          <article><span>Tracks</span><strong>-</strong></article>
+          <article><span>Total streams</span><strong>-</strong></article>
+          <article><span>Uploads</span><strong>-</strong></article>
+          <article><span>Users</span><strong>-</strong></article>
+        </div>
+      </section>
+
+      <section class="section page-section admin-grid reveal">
+        <article class="admin-panel">
+          <p class="eyebrow">Artist Setup</p>
+          <h2>Add artist.</h2>
+          <form class="media-form" id="artist-form">
+            <div class="field-row">
+              <div class="field"><label for="artist-name">Artist name</label><input id="artist-name" name="name" type="text" required /></div>
+              <div class="field"><label for="artist-genre">Music genre</label><input id="artist-genre" name="genre" type="text" placeholder="Afrobeat / Hiphop" required /></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label for="artist-origin">Origin</label><input id="artist-origin" name="origin" type="text" /></div>
+              <div class="field"><label for="artist-status">Status</label><select id="artist-status" name="status"><option>active</option><option>development</option><option>paused</option></select></div>
+            </div>
+            <div class="field"><label for="artist-bio">Artist info</label><textarea id="artist-bio" name="bio" rows="4"></textarea></div>
+            <div class="field-row">
+              <div class="field"><label for="artist-listeners">Monthly listeners</label><input id="artist-listeners" name="monthlyListeners" type="number" min="0" value="0" /></div>
+              <div class="field"><label for="artist-followers">Followers</label><input id="artist-followers" name="followers" type="number" min="0" value="0" /></div>
+            </div>
+            <button class="button primary" type="submit">Create artist</button>
+            <p class="form-status" aria-live="polite"></p>
+          </form>
+        </article>
+
+        <article class="admin-panel">
+          <p class="eyebrow">Album Setup</p>
+          <h2>Add album.</h2>
+          <form class="media-form" id="album-form">
+            <div class="field-row">
+              <div class="field"><label for="album-title">Album / release title</label><input id="album-title" name="title" type="text" required /></div>
+              <div class="field"><label for="album-artist">Artist</label><select id="album-artist" name="artistId" data-artist-select required></select></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label for="album-genre">Genre</label><input id="album-genre" name="genre" type="text" /></div>
+              <div class="field"><label for="album-type">Release type</label><select id="album-type" name="releaseType"><option>single</option><option>album</option><option>EP</option><option>single collection</option></select></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label for="album-date">Release date</label><input id="album-date" name="releaseDate" type="date" /></div>
+              <div class="field"><label for="album-status">Status</label><select id="album-status" name="status"><option>draft</option><option>active</option><option>archived</option></select></div>
+            </div>
+            <button class="button primary" type="submit">Create album</button>
+            <p class="form-status" aria-live="polite"></p>
+          </form>
+        </article>
+      </section>
+
       <section class="section page-section media-vault reveal">
         <div class="section-heading">
-          <p class="eyebrow">Media Upload</p>
-          <h2>Store audio and video snippets.</h2>
-          <p>Files are stored by the Node backend under `storage/media` and listed through `/api/media`. Upload is restricted to admin users.</p>
+          <p class="eyebrow">Backend Media Vault</p>
+          <h2>Upload catalog media.</h2>
+          <p>Store previews, full tracks, music videos, behind-the-scenes clips, and snippets. Files are stored under `storage/media` and listed through `/api/media`.</p>
         </div>
         <form class="media-form" id="media-upload-form">
           <div class="field-row">
             <div class="field"><label for="media-title">Title</label><input id="media-title" name="title" type="text" required /></div>
-            <div class="field"><label for="media-artist">Artist</label><input id="media-artist" name="artist" type="text" required /></div>
+            <div class="field"><label for="media-artist">Artist</label><select id="media-artist" name="artistId" data-artist-select required></select></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="media-album">Album / release</label><select id="media-album" name="albumId" data-album-select></select></div>
+            <div class="field"><label for="media-genre">Genre</label><input id="media-genre" name="genre" type="text" /></div>
           </div>
           <div class="field-row">
             <div class="field">
               <label for="media-kind">Media kind</label>
-              <select id="media-kind" name="kind"><option>snippet</option><option>full track</option><option>music video</option><option>behind the scenes</option></select>
+              <select id="media-kind" name="kind"><option>snippet</option><option>full track</option><option>music video</option><option>behind the scenes</option><option>album trailer</option></select>
             </div>
+            <div class="field"><label for="media-track-number">Track number</label><input id="media-track-number" name="trackNumber" type="number" min="1" /></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label for="media-status">Release status</label><select id="media-status" name="releaseStatus"><option>draft</option><option>active</option><option>archived</option></select></div>
             <div class="field"><label for="media-file">Audio or video file</label><input id="media-file" name="file" type="file" accept="audio/*,video/*" required /></div>
           </div>
+          <label class="inline-check"><input name="isSnippet" type="checkbox" /> Mark as public snippet</label>
           <button class="button primary" type="submit">Upload media</button>
           <p class="form-status" aria-live="polite"></p>
         </form>
-        <div class="media-library-list" id="media-library-list"></div>
+      </section>
+
+      <section class="section page-section admin-tables reveal">
+        <div class="admin-table-card">
+          <h2>Artists</h2>
+          <div class="admin-table" id="artists-table"></div>
+        </div>
+        <div class="admin-table-card">
+          <h2>Albums</h2>
+          <div class="admin-table" id="albums-table"></div>
+        </div>
+        <div class="admin-table-card wide">
+          <h2>Songs and streams</h2>
+          <div class="admin-table" id="tracks-table"></div>
+        </div>
+        <div class="admin-table-card wide">
+          <h2>Uploaded media</h2>
+          <div class="media-library-list" id="media-library-list"></div>
+        </div>
       </section>
     </main>
 
     <footer class="site-footer"><img src="/assets/nexa-mark.png" alt="" /><p>&copy; <span id="year"></span> NEXAStudios™ Music. All rights reserved.</p><a href="/store">Store</a></footer>
-    <script src="/script.js?v=6"></script>
+    <script src="/script.js?v=7"></script>
   </body>
 </html>

@@ -294,16 +294,31 @@ function initPurchaseSuccess() {
   }
 }
 
+function escapeHtml(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
+
 function mediaMarkup(item) {
+  const mediaUrl = escapeHtml(item.url);
+  const title = escapeHtml(item.title);
+  const artist = escapeHtml(item.artist || "Unassigned Artist");
+  const album = escapeHtml(item.album || "No album");
+  const kind = escapeHtml(item.kind);
   const player = item.mimeType.startsWith("video/")
-    ? `<video src="${item.url}" controls preload="metadata"></video>`
-    : `<audio src="${item.url}" controls preload="metadata"></audio>`;
+    ? `<video src="${mediaUrl}" controls preload="metadata"></video>`
+    : `<audio src="${mediaUrl}" controls preload="metadata"></audio>`;
   return `
     <article class="media-card">
       ${player}
       <div>
-        <h3>${item.title}</h3>
-        <p>${item.artist} · ${item.kind} · ${(item.size / 1024 / 1024).toFixed(2)}MB</p>
+        <h3>${title}</h3>
+        <p>${artist} · ${album} · ${kind} · ${(item.size / 1024 / 1024).toFixed(2)}MB</p>
       </div>
     </article>
   `;
@@ -322,6 +337,128 @@ async function loadMediaLibrary() {
   } catch {
     list.innerHTML = '<p class="empty-state">Media library could not be loaded.</p>';
   }
+}
+
+function optionMarkup(items, labelKey = "name") {
+  return [
+    '<option value="">Select</option>',
+    ...items.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item[labelKey])}</option>`)
+  ].join("");
+}
+
+function tableMarkup(headers, rows) {
+  if (!rows.length) return '<p class="empty-state">No data yet.</p>';
+  return `
+    <table>
+      <thead><tr>${headers.map((header) => `<th>${escapeHtml(header)}</th>`).join("")}</tr></thead>
+      <tbody>${rows.join("")}</tbody>
+    </table>
+  `;
+}
+
+async function loadAdminDashboard() {
+  if (!document.body.classList.contains("admin-page")) return;
+
+  const [dashboardRes, artistsRes, albumsRes] = await Promise.all([
+    fetch("/api/admin/dashboard"),
+    fetch("/api/artists"),
+    fetch("/api/albums")
+  ]);
+
+  if (!dashboardRes.ok) return;
+
+  const dashboard = await dashboardRes.json();
+  const artistsData = await artistsRes.json();
+  const albumsData = await albumsRes.json();
+  const artists = artistsData.artists || [];
+  const albums = albumsData.albums || [];
+
+  document.querySelectorAll("[data-artist-select]").forEach((select) => {
+    const current = select.value;
+    select.innerHTML = optionMarkup(artists, "name");
+    select.value = current;
+  });
+
+  document.querySelectorAll("[data-album-select]").forEach((select) => {
+    const current = select.value;
+    select.innerHTML = optionMarkup(albums, "title");
+    select.value = current;
+  });
+
+  const statValues = [
+    dashboard.stats.artists,
+    dashboard.stats.albums,
+    dashboard.stats.tracks,
+    dashboard.stats.streams.toLocaleString(),
+    dashboard.stats.uploads,
+    dashboard.stats.users
+  ];
+  document.querySelectorAll("#admin-stats strong").forEach((el, index) => {
+    el.textContent = statValues[index] ?? "-";
+  });
+
+  const artistsTable = document.getElementById("artists-table");
+  if (artistsTable) {
+    artistsTable.innerHTML = tableMarkup(["Artist", "Genre", "Albums", "Tracks", "Streams"], dashboard.artists.map((artist) => `
+      <tr><td>${escapeHtml(artist.name)}</td><td>${escapeHtml(artist.genre || "-")}</td><td>${escapeHtml(artist.albums)}</td><td>${escapeHtml(artist.tracks)}</td><td>${escapeHtml(artist.streams.toLocaleString())}</td></tr>
+    `));
+  }
+
+  const albumsTable = document.getElementById("albums-table");
+  if (albumsTable) {
+    albumsTable.innerHTML = tableMarkup(["Album", "Artist", "Type", "Tracks", "Streams"], dashboard.albums.map((album) => `
+      <tr><td>${escapeHtml(album.title)}</td><td>${escapeHtml(album.artist)}</td><td>${escapeHtml(album.releaseType || "-")}</td><td>${escapeHtml(album.tracks)}</td><td>${escapeHtml(album.streams.toLocaleString())}</td></tr>
+    `));
+  }
+
+  const tracksTable = document.getElementById("tracks-table");
+  if (tracksTable) {
+    tracksTable.innerHTML = tableMarkup(["Song", "Artist", "Album", "Genre", "Streams"], dashboard.tracks.map((track) => `
+      <tr><td>${escapeHtml(track.title)}</td><td>${escapeHtml(track.artist || "-")}</td><td>${escapeHtml(track.album || "-")}</td><td>${escapeHtml(track.genre || "-")}</td><td>${escapeHtml(track.streams.toLocaleString())}</td></tr>
+    `));
+  }
+}
+
+function initAdminForms() {
+  const artistForm = document.getElementById("artist-form");
+  const albumForm = document.getElementById("album-form");
+
+  async function submitAdminForm(form, url, successText) {
+    const status = form.querySelector(".form-status");
+    const btn = form.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Saving";
+    try {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(new FormData(form)))
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Save failed");
+      status.textContent = successText;
+      status.className = "form-status ok";
+      form.reset();
+      await loadAdminDashboard();
+    } catch (error) {
+      status.textContent = error.message;
+      status.className = "form-status err";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  }
+
+  artistForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    submitAdminForm(artistForm, "/api/artists", "Artist created.");
+  });
+
+  albumForm?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    submitAdminForm(albumForm, "/api/albums", "Album created.");
+  });
 }
 
 function initMediaUpload() {
@@ -352,10 +489,18 @@ function initMediaUpload() {
         reader.readAsDataURL(file);
       });
       const formData = Object.fromEntries(new FormData(form));
+      const artistSelect = form.querySelector('[name="artistId"]');
+      const albumSelect = form.querySelector('[name="albumId"]');
       const res = await fetch("/api/media", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, fileName: file.name, dataUrl })
+        body: JSON.stringify({
+          ...formData,
+          artist: artistSelect?.selectedOptions?.[0]?.textContent || "",
+          album: albumSelect?.selectedOptions?.[0]?.textContent || "",
+          fileName: file.name,
+          dataUrl
+        })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Upload failed");
@@ -363,6 +508,7 @@ function initMediaUpload() {
       status.className = "form-status ok";
       form.reset();
       await loadMediaLibrary();
+      await loadAdminDashboard();
     } catch (error) {
       status.textContent = error.message || "Upload failed.";
       status.className = "form-status err";
@@ -373,6 +519,7 @@ function initMediaUpload() {
   });
 
   loadMediaLibrary();
+  loadAdminDashboard();
 }
 
 function setSessionToken(token) {
@@ -636,6 +783,7 @@ initStoreFilters();
 initBuyButtons();
 initPurchaseSuccess();
 initMediaUpload();
+initAdminForms();
 initAuthForms();
 initAudioModal();
 initAdminGate();

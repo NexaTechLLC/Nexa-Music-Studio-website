@@ -1034,6 +1034,112 @@ h3 {
   color: var(--muted);
 }
 
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-stats article,
+.admin-panel,
+.admin-table-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.045));
+  box-shadow: var(--shadow);
+}
+
+.admin-stats article {
+  min-width: 0;
+  padding: 1.15rem;
+}
+
+.admin-stats span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-stats strong {
+  display: block;
+  margin-top: 0.45rem;
+  font-size: clamp(1.45rem, 3vw, 2rem);
+  line-height: 1;
+}
+
+.admin-grid,
+.admin-tables {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.admin-panel,
+.admin-table-card {
+  min-width: 0;
+  padding: 1.25rem;
+}
+
+.admin-panel h2,
+.admin-table-card h2 {
+  margin-bottom: 1rem;
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+}
+
+.admin-table-card.wide {
+  grid-column: 1 / -1;
+}
+
+.inline-check {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.inline-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--cyan);
+}
+
+.admin-table {
+  overflow-x: auto;
+}
+
+.admin-table table {
+  width: 100%;
+  min-width: 680px;
+  border-collapse: collapse;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 0.85rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.admin-table th {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-table td {
+  color: var(--text);
+  font-size: 0.92rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal,
   .reveal-group > *,
@@ -1144,8 +1250,18 @@ h3 {
   .license-grid,
   .blog-grid,
   .product-grid,
-  .media-library-list {
+  .media-library-list,
+  .admin-stats {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin-grid,
+  .admin-tables {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-table-card.wide {
+    grid-column: auto;
   }
 
   .hero-stats {
@@ -1181,6 +1297,7 @@ h3 {
   .blog-grid,
   .product-grid,
   .media-library-list,
+  .admin-stats,
   .field-row {
     grid-template-columns: 1fr;
   }
