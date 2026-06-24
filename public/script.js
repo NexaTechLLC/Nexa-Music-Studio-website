@@ -101,11 +101,12 @@ function initReveal() {
 
 function initAudioPreviews() {
   const cards = document.querySelectorAll("[data-audio]");
-  if (!cards.length) return;
+  if (!cards.length && !document.getElementById("audio-bar")) return;
 
   const audio = new Audio();
   audio.volume = 0.7;
   let activeBtn = null;
+  let activePreviewLimit = 0;
   const bar = document.getElementById("audio-bar");
   const barTitle = document.getElementById("audio-bar-title");
   const progress = document.getElementById("audio-progress");
@@ -124,7 +125,7 @@ function initAudioPreviews() {
       : '<svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><rect x="2" y="1" width="4" height="12"/><rect x="8" y="1" width="4" height="12"/></svg>';
   }
 
-  function play(src, title, btn) {
+  function play(src, title, btn, previewLimit = 0) {
     if (activeBtn && activeBtn !== btn) resetButton(activeBtn);
 
     if (audio.src.endsWith(src) && !audio.paused) {
@@ -132,11 +133,14 @@ function initAudioPreviews() {
       resetButton(btn);
       bar?.classList.remove("visible");
       activeBtn = null;
+      activePreviewLimit = 0;
       setToggleIcon(true);
       return;
     }
 
+    activePreviewLimit = Number(previewLimit || 0);
     audio.src = src;
+    audio.currentTime = 0;
     audio.play().catch(() => {});
     btn.classList.add("playing");
     btn.querySelector("span").textContent = "Playing";
@@ -157,17 +161,27 @@ function initAudioPreviews() {
   document.addEventListener("click", (event) => {
     const btn = event.target.closest(".preview-btn[data-audio]");
     if (!btn) return;
-    play(btn.dataset.audio, btn.closest(".catalog-track")?.querySelector(".track-link")?.textContent || "NEXAStudios preview", btn);
+    play(btn.dataset.audio, btn.closest(".catalog-track")?.querySelector(".track-link")?.textContent || "NEXAStudios preview", btn, btn.dataset.previewLimit);
   });
 
   audio.addEventListener("timeupdate", () => {
     if (progress && audio.duration) progress.value = audio.currentTime / audio.duration;
+    if (activePreviewLimit && audio.currentTime >= activePreviewLimit) {
+      audio.pause();
+      audio.currentTime = 0;
+      resetButton(activeBtn);
+      bar?.classList.remove("visible");
+      activeBtn = null;
+      activePreviewLimit = 0;
+      setToggleIcon(true);
+    }
   });
 
   audio.addEventListener("ended", () => {
     resetButton(activeBtn);
     bar?.classList.remove("visible");
     activeBtn = null;
+    activePreviewLimit = 0;
     setToggleIcon(true);
   });
 
@@ -186,6 +200,7 @@ function initAudioPreviews() {
     bar?.classList.remove("visible");
     resetButton(activeBtn);
     activeBtn = null;
+    activePreviewLimit = 0;
     setToggleIcon(true);
   });
 }
@@ -311,12 +326,14 @@ function escapeHtml(value) {
 }
 
 function mediaMarkup(item) {
-  const mediaUrl = escapeHtml(item.url);
+  const mediaUrl = escapeHtml(item.embedUrl || item.url);
   const title = escapeHtml(item.title);
   const artist = escapeHtml(item.artist || "Unassigned Artist");
   const album = escapeHtml(item.album || "No album");
   const kind = escapeHtml(item.kind);
-  const player = item.mimeType.startsWith("video/")
+  const player = item.provider === "youtube"
+    ? `<iframe class="youtube-embed" src="${mediaUrl}" title="${title}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`
+    : item.mimeType.startsWith("video/")
     ? `<video src="${mediaUrl}" controls preload="metadata"></video>`
     : `<audio src="${mediaUrl}" controls preload="metadata"></audio>`;
   return `
@@ -365,9 +382,14 @@ function publicTrackButton(item, label = "Listen") {
   return `<button class="track-link listen-btn" data-audio="${escapeHtml(item.url)}" data-snippet="${item.isSnippet ? "true" : "false"}" type="button">${escapeHtml(label)}</button>`;
 }
 
+function previewUrl(item) {
+  return item.provider === "youtube" ? item.embedUrl || item.url : `${item.url}?preview=1`;
+}
+
 function publicPreviewButton(item) {
+  if (item.provider === "youtube") return "";
   return `
-    <button class="preview-btn" data-audio="${escapeHtml(item.url)}" type="button" aria-label="Preview ${escapeHtml(item.title)}">
+    <button class="preview-btn" data-audio="${escapeHtml(previewUrl(item))}" data-preview-limit="10" type="button" aria-label="Preview ${escapeHtml(item.title)}">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg>
       <span>Preview</span>
     </button>
@@ -380,9 +402,10 @@ function publicTrackMeta(item) {
   return context && context.toLowerCase() !== kind.toLowerCase() ? `${context} · ${kind}` : kind;
 }
 
-function publicCatalogItem(item) {
+function publicCatalogItem(item, trackNumber) {
   return `
     <article class="catalog-track">
+      <span class="track-number">Track ${trackNumber}</span>
       ${publicPreviewButton(item)}
       ${publicTrackButton(item, item.title)}
     </article>
@@ -419,9 +442,10 @@ async function initPublicCatalog() {
 
     artistCatalogs.forEach((container) => {
       const artistId = container.dataset.publicCatalog;
+      const trackOffset = Number(container.dataset.trackOffset || 0);
       const tracks = media.filter((item) => item.artistId === artistId || artistSlug(item.artist) === artistId);
       container.innerHTML = tracks.length
-        ? tracks.map(publicCatalogItem).join("")
+        ? tracks.map((item, index) => publicCatalogItem(item, trackOffset + index + 1)).join("")
         : '<p class="empty-state compact">No public releases uploaded yet.</p>';
     });
 
@@ -563,12 +587,19 @@ function initMediaUpload() {
 
   const status = form.querySelector(".form-status");
   const fileInput = form.querySelector('input[type="file"]');
+  const youtubeInput = form.querySelector('[name="youtubeUrl"]');
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const file = fileInput.files?.[0];
-    if (!file) {
-      status.textContent = "Choose an audio or video file first.";
+    const youtubeUrl = youtubeInput?.value.trim();
+    if (!file && !youtubeUrl) {
+      status.textContent = "Choose an audio or video file, or paste a YouTube video URL.";
+      status.className = "form-status err";
+      return;
+    }
+    if (file && youtubeUrl) {
+      status.textContent = "Use either a file upload or a YouTube video URL, not both.";
       status.className = "form-status err";
       return;
     }
@@ -578,12 +609,12 @@ function initMediaUpload() {
     btn.textContent = "Uploading";
 
     try {
-      const dataUrl = await new Promise((resolve, reject) => {
+      const dataUrl = file ? await new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => resolve(reader.result);
         reader.onerror = reject;
         reader.readAsDataURL(file);
-      });
+      }) : "";
       const formData = Object.fromEntries(new FormData(form));
       const artistSelect = form.querySelector('[name="artistId"]');
       const albumSelect = form.querySelector('[name="albumId"]');
@@ -594,7 +625,7 @@ function initMediaUpload() {
           ...formData,
           artist: artistSelect?.selectedOptions?.[0]?.textContent || "",
           album: albumSelect?.selectedOptions?.[0]?.textContent || "",
-          fileName: file.name,
+          fileName: file?.name || "",
           dataUrl
         })
       });

@@ -343,8 +343,9 @@ function serveFile(filePath, response, request) {
   if (isAudio) {
     const filename = path.basename(filePath);
     const isSnippet = filename.includes("-snippet");
+    const isPreview = new URL(request.url, `http://${request.headers.host || "localhost"}`).searchParams.get("preview") === "1";
     
-    if (!isSnippet) {
+    if (!isSnippet && !isPreview) {
       const user = getUserFromSession(request);
       if (!user) {
         response.writeHead(401, { "Content-Type": "application/json" });
@@ -476,6 +477,30 @@ function parseDataUrl(dataUrl) {
   return { mimeType: match[1], buffer: Buffer.from(match[2], "base64") };
 }
 
+function parseYouTubeUrl(urlValue) {
+  const value = String(urlValue || "").trim();
+  if (!value) return null;
+  try {
+    const parsed = new URL(value);
+    const host = parsed.hostname.replace(/^www\./, "");
+    let videoId = "";
+    if (host === "youtu.be") videoId = parsed.pathname.split("/").filter(Boolean)[0] || "";
+    if (host.endsWith("youtube.com")) {
+      if (parsed.pathname.startsWith("/embed/")) videoId = parsed.pathname.split("/").filter(Boolean)[1] || "";
+      if (!videoId) videoId = parsed.searchParams.get("v") || "";
+      if (!videoId && parsed.pathname.startsWith("/shorts/")) videoId = parsed.pathname.split("/").filter(Boolean)[1] || "";
+    }
+    if (!/^[a-zA-Z0-9_-]{6,20}$/.test(videoId)) return null;
+    return {
+      videoId,
+      url: `https://www.youtube.com/watch?v=${videoId}`,
+      embedUrl: `https://www.youtube.com/embed/${videoId}`
+    };
+  } catch {
+    return null;
+  }
+}
+
 async function handleMediaUpload(request, response) {
   const user = getUserFromSession(request);
   if (!isAdminUser(user)) {
@@ -485,22 +510,32 @@ async function handleMediaUpload(request, response) {
 
   const body = JSON.parse(await collectBody(request) || "{}");
   const parsed = parseDataUrl(body.dataUrl);
+  const youtube = parseYouTubeUrl(body.youtubeUrl);
 
-  if (!parsed || !allowedMediaTypes.has(parsed.mimeType)) {
+  if (!parsed && !youtube) {
+    sendJson(response, 400, { ok: false, error: "Upload an audio/video file or provide a valid YouTube URL." });
+    return;
+  }
+
+  if (parsed && youtube) {
+    sendJson(response, 400, { ok: false, error: "Choose either a file upload or a YouTube URL, not both." });
+    return;
+  }
+
+  if (parsed && !allowedMediaTypes.has(parsed.mimeType)) {
     sendJson(response, 400, { ok: false, error: "Upload must be an audio or video file." });
     return;
   }
 
-  if (parsed.buffer.length > 25 * 1024 * 1024) {
+  if (parsed && parsed.buffer.length > 25 * 1024 * 1024) {
     sendJson(response, 413, { ok: false, error: "File must be 25MB or smaller." });
     return;
   }
 
-  const cleanName = sanitizeFilename(body.fileName);
-  const ext = path.extname(cleanName) || (parsed.mimeType.startsWith("video/") ? ".mp4" : ".wav");
-  const storedName = `${Date.now()}-${crypto.randomBytes(4).toString("hex")}-${path.basename(cleanName, ext)}${ext}`;
-  const filePath = path.join(mediaDir, storedName);
-  fs.writeFileSync(filePath, parsed.buffer);
+  const cleanName = sanitizeFilename(body.fileName || body.title || "youtube-video");
+  const ext = parsed ? path.extname(cleanName) || (parsed.mimeType.startsWith("video/") ? ".mp4" : ".wav") : "";
+  const storedName = parsed ? `${Date.now()}-${crypto.randomBytes(4).toString("hex")}-${path.basename(cleanName, ext)}${ext}` : "";
+  if (parsed) fs.writeFileSync(path.join(mediaDir, storedName), parsed.buffer);
 
   const mediaItem = {
     id: crypto.randomUUID(),
@@ -512,14 +547,17 @@ async function handleMediaUpload(request, response) {
     album: sanitizeText(body.album),
     genre: sanitizeText(body.genre),
     trackNumber: sanitizeText(body.trackNumber),
-    kind: sanitizeText(body.kind, parsed.mimeType.startsWith("video/") ? "video" : "audio"),
+    kind: sanitizeText(body.kind, youtube ? "music video" : parsed.mimeType.startsWith("video/") ? "video" : "audio"),
     releaseStatus: sanitizeText(body.releaseStatus, "draft"),
     isSnippet: body.isSnippet === "on" || body.isSnippet === true || String(body.kind || "").includes("snippet"),
-    mimeType: parsed.mimeType,
+    provider: youtube ? "youtube" : "file",
+    youtubeId: youtube?.videoId || "",
+    embedUrl: youtube?.embedUrl || "",
+    mimeType: youtube ? "text/youtube" : parsed.mimeType,
     originalName: cleanName,
     storedName,
-    size: parsed.buffer.length,
-    url: `/media/${storedName}`
+    size: parsed ? parsed.buffer.length : 0,
+    url: youtube ? youtube.url : `/media/${storedName}`
   };
 
   const media = readJsonFile(mediaIndexFile);
