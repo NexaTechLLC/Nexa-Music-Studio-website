@@ -375,6 +375,235 @@ function initMediaUpload() {
   loadMediaLibrary();
 }
 
+function setSessionToken(token) {
+  document.cookie = `session=${token}; path=/; max-age=2592000`; // 30 days
+}
+
+function getSessionToken() {
+  const cookies = document.cookie.split(";").map(c => c.trim());
+  const sessionCookie = cookies.find(c => c.startsWith("session="));
+  return sessionCookie ? sessionCookie.substring(8) : null;
+}
+
+function clearSessionToken() {
+  document.cookie = "session=; path=/; max-age=0";
+}
+
+async function checkAuth() {
+  try {
+    const res = await fetch("/api/me");
+    if (res.ok) {
+      const data = await res.json();
+      return data.user;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function initAuthForms() {
+  const loginForm = document.getElementById("login-form");
+  const signupForm = document.getElementById("signup-form");
+  const authTabs = document.querySelectorAll(".auth-tab");
+  const authSuccess = document.getElementById("auth-success");
+
+  if (!loginForm || !signupForm) return;
+
+  authTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      authTabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      
+      const tabName = tab.dataset.tab;
+      if (tabName === "login") {
+        loginForm.classList.remove("hidden");
+        signupForm.classList.add("hidden");
+      } else {
+        loginForm.classList.add("hidden");
+        signupForm.classList.remove("hidden");
+      }
+    });
+  });
+
+  loginForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const status = loginForm.querySelector(".form-status");
+    const btn = loginForm.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+    
+    btn.disabled = true;
+    btn.textContent = "Signing in...";
+    
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(new FormData(loginForm)))
+      });
+      const data = await res.json();
+      
+      if (data.ok) {
+        setSessionToken(data.token);
+        status.textContent = "Signed in successfully!";
+        status.className = "form-status ok";
+        loginForm.classList.add("hidden");
+        signupForm.classList.add("hidden");
+        authSuccess.hidden = false;
+      } else {
+        status.textContent = data.error || "Sign in failed";
+        status.className = "form-status err";
+      }
+    } catch (err) {
+      status.textContent = "Network error. Please try again.";
+      status.className = "form-status err";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  });
+
+  signupForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const status = signupForm.querySelector(".form-status");
+    const btn = signupForm.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+    
+    btn.disabled = true;
+    btn.textContent = "Creating account...";
+    
+    try {
+      const res = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(new FormData(signupForm)))
+      });
+      const data = await res.json();
+      
+      if (data.ok) {
+        setSessionToken(data.token);
+        status.textContent = "Account created successfully!";
+        status.className = "form-status ok";
+        loginForm.classList.add("hidden");
+        signupForm.classList.add("hidden");
+        authSuccess.hidden = false;
+      } else {
+        status.textContent = data.error || "Sign up failed";
+        status.className = "form-status err";
+      }
+    } catch (err) {
+      status.textContent = "Network error. Please try again.";
+      status.className = "form-status err";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  });
+}
+
+function initAudioModal() {
+  const modal = document.getElementById("audio-modal");
+  const modalPlayer = document.getElementById("audio-modal-player");
+  const modalTitle = document.getElementById("audio-modal-title");
+  const closeBtn = document.querySelector(".audio-modal-close");
+  const listenBtns = document.querySelectorAll(".listen-btn");
+  const playPauseBtn = document.getElementById("audio-play-pause");
+  const progressBar = document.getElementById("audio-progress-bar");
+  const currentTimeEl = document.getElementById("audio-current-time");
+  const durationEl = document.getElementById("audio-duration");
+  const volumeSlider = document.getElementById("audio-volume");
+
+  if (!modal || !modalPlayer) return;
+
+  function formatTime(seconds) {
+    if (isNaN(seconds)) return "0:00";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  }
+
+  function updatePlayPauseIcon() {
+    if (modalPlayer.paused) {
+      playPauseBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg>';
+    } else {
+      playPauseBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="4" height="12"/><rect x="9" y="2" width="4" height="12"/></svg>';
+    }
+  }
+
+  async function openModal(audioSrc, title) {
+    const isSnippet = audioSrc.includes("-snippet");
+    
+    if (!isSnippet) {
+      const user = await checkAuth();
+      if (!user) {
+        alert("Please sign in to play full tracks. Snippets are free for everyone.");
+        window.location.href = "/auth";
+        return;
+      }
+    }
+    
+    modalPlayer.src = audioSrc;
+    modalTitle.textContent = title;
+    modal.hidden = false;
+    document.body.style.paddingBottom = "80px";
+    modalPlayer.load();
+    modalPlayer.play().catch((err) => {
+      console.error("Audio play error:", err);
+    });
+  }
+
+  function closeModal() {
+    modalPlayer.pause();
+    modalPlayer.src = "";
+    modal.hidden = true;
+    document.body.style.paddingBottom = "";
+  }
+
+  closeBtn?.addEventListener("click", closeModal);
+
+  playPauseBtn?.addEventListener("click", () => {
+    if (modalPlayer.paused) {
+      modalPlayer.play().catch(() => {});
+    } else {
+      modalPlayer.pause();
+    }
+  });
+
+  modalPlayer.addEventListener("timeupdate", () => {
+    const progress = (modalPlayer.currentTime / modalPlayer.duration) * 100 || 0;
+    progressBar.value = progress;
+    currentTimeEl.textContent = formatTime(modalPlayer.currentTime);
+  });
+
+  modalPlayer.addEventListener("loadedmetadata", () => {
+    durationEl.textContent = formatTime(modalPlayer.duration);
+  });
+
+  modalPlayer.addEventListener("play", updatePlayPauseIcon);
+  modalPlayer.addEventListener("pause", updatePlayPauseIcon);
+
+  progressBar?.addEventListener("input", () => {
+    const time = (progressBar.value / 100) * modalPlayer.duration;
+    modalPlayer.currentTime = time;
+  });
+
+  volumeSlider?.addEventListener("input", () => {
+    modalPlayer.volume = volumeSlider.value;
+  });
+
+  listenBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const audioSrc = btn.dataset.audio;
+      const title = btn.textContent || "Now Playing";
+      if (audioSrc) openModal(audioSrc, title);
+    });
+  });
+
+  modalPlayer.addEventListener("error", (e) => {
+    console.error("Audio load error:", e);
+  });
+}
+
 initHeader();
 initWaveform();
 initReveal();
@@ -385,3 +614,5 @@ initStoreFilters();
 initBuyButtons();
 initPurchaseSuccess();
 initMediaUpload();
+initAuthForms();
+initAudioModal();

@@ -17,6 +17,7 @@
         <a href="/store" aria-current="page">Store</a>
         <a href="/blog">Blog</a>
         <a href="/contact">Contact</a>
+        <a href="/auth">Sign In</a>
         <a href="https://www.youtube.com/@NEXAStudiosTMMusic" target="_blank" rel="noopener">YouTube</a>
       </nav>
     </header>
@@ -41,7 +42,7 @@
         <div id="purchase-success" class="purchase-success" hidden>Purchase complete. Check your email for your download link.</div>
 
         <div class="product-grid reveal-group" id="product-grid">
-          <article class="product-card" data-region="afrobeat-hiphop" data-audio="/audio/afro-preview.wav">
+          <article class="product-card" data-region="afrobeat-hiphop" data-audio="/audio/1782309923941-7aff0f41-odu-mi-o-1-male-snippet.mp3">
             <div class="product-thumb afro-thumb"></div>
             <div class="product-info">
               <p class="eyebrow">BLACK INDIGO · Album</p>
@@ -50,11 +51,11 @@
               <div class="product-actions">
                 <span class="product-price">$9.99</span>
                 <button class="preview-btn" type="button" aria-label="Preview Odu mi o"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
-                <a class="button secondary" href="https://drive.google.com/file/d/1vjJq9rzWGT0EEEgzd2A_wSLrFf9Q6i8S/view?usp=sharing" target="_blank" rel="noopener">Listen</a>
+                <button class="button secondary listen-btn" data-audio="/audio/1782309923941-7aff0f41-odu-mi-o-1-male.mp3" type="button">Listen</button>
               </div>
             </div>
           </article>
-          <article class="product-card" data-region="gospel" data-audio="/audio/gospel-preview.wav">
+          <article class="product-card" data-region="gospel" data-audio="/audio/1782310018878-a328b29b-akala-aka-m-o-1-female-snippet.mp3">
             <div class="product-thumb gospel-thumb"></div>
             <div class="product-info">
               <p class="eyebrow">DR. AMAKA ALOY · Album</p>
@@ -63,7 +64,7 @@
               <div class="product-actions">
                 <span class="product-price">$9.99</span>
                 <button class="preview-btn" type="button" aria-label="Preview Akala aka m o"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
-                <a class="button secondary" href="https://drive.google.com/file/d/180k2sLYZprCiNTDV84_sSmUUF9kWgE8y/view?usp=sharing" target="_blank" rel="noopener">Listen</a>
+                <button class="button secondary listen-btn" data-audio="/audio/1782310018878-a328b29b-akala-aka-m-o-1-female.mp3" type="button">Listen</button>
               </div>
             </div>
           </article>
@@ -102,6 +103,27 @@
       <div><div class="track-label">Now previewing</div><div class="track-name" id="audio-bar-title">-</div></div>
       <progress id="audio-progress" value="0" max="1"></progress>
       <button id="audio-bar-close" aria-label="Close player">x</button>
+    </div>
+    <div id="audio-modal" class="audio-modal" hidden>
+      <div class="audio-modal-content">
+        <button class="audio-modal-close" aria-label="Close player">&times;</button>
+        <h3 id="audio-modal-title">Now Playing</h3>
+        <div class="audio-player-controls">
+          <button class="audio-control-btn" id="audio-play-pause" aria-label="Play/Pause">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg>
+          </button>
+          <div class="audio-progress-container">
+            <span id="audio-current-time" class="audio-time">0:00</span>
+            <input type="range" id="audio-progress-bar" class="audio-progress-bar" value="0" min="0" max="100" step="0.1" aria-label="Seek">
+            <span id="audio-duration" class="audio-time">0:00</span>
+          </div>
+          <div class="audio-volume-control">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="volume-icon"><path d="M3 9v-2h2l3-3v8l-3-3H3z"/></svg>
+            <input type="range" id="audio-volume" class="audio-volume-slider" value="1" min="0" max="1" step="0.1" aria-label="Volume">
+          </div>
+        </div>
+        <audio id="audio-modal-player" preload="metadata"></audio>
+      </div>
     </div>
     <script src="/script.js?v=5"></script>
   </body>

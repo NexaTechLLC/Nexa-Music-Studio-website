@@ -11,6 +11,8 @@ const mediaDir = path.join(storageDir, "media");
 const metaDir = path.join(storageDir, "meta");
 const contactFile = path.join(storageDir, "contact-submissions.json");
 const mediaIndexFile = path.join(metaDir, "media-library.json");
+const usersFile = path.join(metaDir, "users.json");
+const sessionsFile = path.join(metaDir, "sessions.json");
 
 const mimeTypes = {
   ".html": "text/html; charset=utf-8",
@@ -46,6 +48,8 @@ function ensureStorage() {
   fs.mkdirSync(metaDir, { recursive: true });
   if (!fs.existsSync(contactFile)) fs.writeFileSync(contactFile, "[]\n");
   if (!fs.existsSync(mediaIndexFile)) fs.writeFileSync(mediaIndexFile, "[]\n");
+  if (!fs.existsSync(usersFile)) fs.writeFileSync(usersFile, "[]\n");
+  if (!fs.existsSync(sessionsFile)) fs.writeFileSync(sessionsFile, "[]\n");
 }
 
 function sendJson(response, statusCode, payload) {
@@ -66,6 +70,71 @@ function readJsonFile(filePath) {
 
 function writeJsonFile(filePath, data) {
   fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`);
+}
+
+function hashPassword(password) {
+  return crypto.createHash("sha256").update(password).digest("hex");
+}
+
+function generateSessionToken() {
+  return crypto.randomBytes(32).toString("hex");
+}
+
+function getUsers() {
+  return readJsonFile(usersFile);
+}
+
+function saveUsers(users) {
+  writeJsonFile(usersFile, users);
+}
+
+function getSessions() {
+  return readJsonFile(sessionsFile);
+}
+
+function saveSessions(sessions) {
+  writeJsonFile(sessionsFile, sessions);
+}
+
+function getSessionByToken(token) {
+  const sessions = getSessions();
+  return sessions.find(s => s.token === token && s.expiresAt > Date.now());
+}
+
+function createSession(userId) {
+  const sessions = getSessions();
+  const token = generateSessionToken();
+  const session = {
+    token,
+    userId,
+    createdAt: Date.now(),
+    expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days
+  };
+  sessions.push(session);
+  saveSessions(sessions);
+  return session;
+}
+
+function deleteSession(token) {
+  const sessions = getSessions();
+  const filtered = sessions.filter(s => s.token !== token);
+  saveSessions(filtered);
+}
+
+function getUserFromSession(request) {
+  const cookieHeader = request.headers.cookie;
+  if (!cookieHeader) return null;
+  
+  const cookies = cookieHeader.split(";").map(c => c.trim());
+  const sessionCookie = cookies.find(c => c.startsWith("session="));
+  if (!sessionCookie) return null;
+  
+  const token = sessionCookie.substring(8);
+  const session = getSessionByToken(token);
+  if (!session) return null;
+  
+  const users = getUsers();
+  return users.find(u => u.id === session.userId);
 }
 
 function collectBody(request, limitBytes = 30 * 1024 * 1024) {
@@ -112,7 +181,61 @@ function resolvePublicFile(urlPath) {
   return filePath;
 }
 
-function serveFile(filePath, response) {
+function serveFile(filePath, response, request) {
+  const ext = path.extname(filePath).toLowerCase();
+  const isAudio = ext === ".mp3" || ext === ".wav" || ext === ".m4a";
+
+  if (isAudio) {
+    const filename = path.basename(filePath);
+    const isSnippet = filename.includes("-snippet");
+    
+    if (!isSnippet) {
+      const user = getUserFromSession(request);
+      if (!user) {
+        response.writeHead(401, { "Content-Type": "application/json" });
+        response.end(JSON.stringify({ error: "Authentication required for full tracks" }));
+        return;
+      }
+    }
+    
+    try {
+      const stat = fs.statSync(filePath);
+      const fileSize = stat.size;
+      const range = request.headers.range;
+
+      if (range) {
+        const parts = range.replace(/bytes=/, "").split("-");
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+        const chunksize = (end - start) + 1;
+        const file = fs.createReadStream(filePath, { start, end });
+        const head = {
+          "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+          "Accept-Ranges": "bytes",
+          "Content-Length": chunksize,
+          "Content-Type": mimeTypes[ext],
+          "Cache-Control": "no-cache"
+        };
+        response.writeHead(206, head);
+        file.pipe(response);
+      } else {
+        const head = {
+          "Content-Length": fileSize,
+          "Content-Type": mimeTypes[ext],
+          "Accept-Ranges": "bytes",
+          "Cache-Control": "no-cache"
+        };
+        response.writeHead(200, head);
+        fs.createReadStream(filePath).pipe(response);
+      }
+    } catch (error) {
+      console.error("Audio file error:", error);
+      response.writeHead(404, { "Content-Type": "text/plain" });
+      response.end("Audio file not found");
+    }
+    return;
+  }
+
   fs.readFile(filePath, (error, content) => {
     if (error) {
       fs.readFile(path.join(publicDir, "index.html"), (fallbackError, fallbackContent) => {
@@ -128,7 +251,6 @@ function serveFile(filePath, response) {
       return;
     }
 
-    const ext = path.extname(filePath).toLowerCase();
     response.writeHead(200, {
       "Content-Type": mimeTypes[ext] || "application/octet-stream",
       "Cache-Control": "no-cache"
@@ -210,6 +332,93 @@ function handleMediaList(response) {
   sendJson(response, 200, { ok: true, media: readJsonFile(mediaIndexFile) });
 }
 
+async function handleSignup(request, response) {
+  const body = JSON.parse(await collectBody(request, 1024 * 1024) || "{}");
+  const email = sanitizeText(body.email, "").toLowerCase();
+  const password = body.password;
+  const name = sanitizeText(body.name, "");
+
+  if (!email || !password || !name) {
+    sendJson(response, 400, { ok: false, error: "Email, password, and name are required." });
+    return;
+  }
+
+  if (password.length < 6) {
+    sendJson(response, 400, { ok: false, error: "Password must be at least 6 characters." });
+    return;
+  }
+
+  const users = getUsers();
+  if (users.find(u => u.email === email)) {
+    sendJson(response, 409, { ok: false, error: "Email already registered." });
+    return;
+  }
+
+  const user = {
+    id: crypto.randomUUID(),
+    email,
+    password: hashPassword(password),
+    name,
+    createdAt: new Date().toISOString()
+  };
+
+  users.push(user);
+  saveUsers(users);
+
+  const session = createSession(user.id);
+  
+  sendJson(response, 201, { 
+    ok: true, 
+    user: { id: user.id, email: user.email, name: user.name },
+    token: session.token 
+  });
+}
+
+async function handleLogin(request, response) {
+  const body = JSON.parse(await collectBody(request, 1024 * 1024) || "{}");
+  const email = sanitizeText(body.email, "").toLowerCase();
+  const password = body.password;
+
+  if (!email || !password) {
+    sendJson(response, 400, { ok: false, error: "Email and password are required." });
+    return;
+  }
+
+  const users = getUsers();
+  const user = users.find(u => u.email === email);
+
+  if (!user || user.password !== hashPassword(password)) {
+    sendJson(response, 401, { ok: false, error: "Invalid email or password." });
+    return;
+  }
+
+  const session = createSession(user.id);
+  
+  sendJson(response, 200, { 
+    ok: true, 
+    user: { id: user.id, email: user.email, name: user.name },
+    token: session.token 
+  });
+}
+
+async function handleLogout(request, response) {
+  const cookieHeader = request.headers.cookie;
+  if (!cookieHeader) {
+    sendJson(response, 200, { ok: true });
+    return;
+  }
+
+  const cookies = cookieHeader.split(";").map(c => c.trim());
+  const sessionCookie = cookies.find(c => c.startsWith("session="));
+  
+  if (sessionCookie) {
+    const token = sessionCookie.substring(8);
+    deleteSession(token);
+  }
+
+  sendJson(response, 200, { ok: true });
+}
+
 async function handleCheckout(request, response) {
   const body = JSON.parse(await collectBody(request, 1024 * 1024) || "{}");
   const productName = sanitizeText(body.productName, "NEXAStudios™ Music product");
@@ -249,6 +458,27 @@ async function handleApi(request, response, pathname) {
       await handleCheckout(request, response);
       return true;
     }
+    if (pathname === "/api/signup" && request.method === "POST") {
+      await handleSignup(request, response);
+      return true;
+    }
+    if (pathname === "/api/login" && request.method === "POST") {
+      await handleLogin(request, response);
+      return true;
+    }
+    if (pathname === "/api/logout" && request.method === "POST") {
+      await handleLogout(request, response);
+      return true;
+    }
+    if (pathname === "/api/me" && request.method === "GET") {
+      const user = getUserFromSession(request);
+      if (user) {
+        sendJson(response, 200, { ok: true, user: { id: user.id, email: user.email, name: user.name } });
+      } else {
+        sendJson(response, 401, { ok: false, error: "Not authenticated" });
+      }
+      return true;
+    }
   } catch (error) {
     sendJson(response, 500, { ok: false, error: error.message || "Server error" });
     return true;
@@ -273,7 +503,7 @@ const server = http.createServer(async (request, response) => {
     return;
   }
 
-  serveFile(resolvePublicFile(url.pathname + url.search), response);
+  serveFile(resolvePublicFile(url.pathname + url.search), response, request);
 });
 
 server.listen(port, () => {
