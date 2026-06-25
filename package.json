@@ -2,20 +2,28 @@
   "name": "nexa-music-studio-website",
   "version": "1.0.0",
   "description": "NEXAStudios™ Music website",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "node .next/standalone/server.js"
   },
   "keywords": [
     "music",
     "studio",
-    "node",
+    "nextjs",
     "website"
   ],
   "author": "NEXAStudios™ Music",
   "license": "MIT",
+  "dependencies": {
+    "next": "^16.2.9",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "overrides": {
+    "postcss": "8.5.10"
+  },
   "engines": {
-    "node": ">=18"
+    "node": ">=20.9.0"
   }
 }
