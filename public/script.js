@@ -649,8 +649,9 @@ function initMediaUpload() {
   loadAdminDashboard();
 }
 
-function setSessionToken(token) {
-  document.cookie = `session=${token}; path=/; max-age=2592000`; // 30 days
+function setSessionToken(token, remember = false) {
+  const maxAge = remember ? 2592000 : 86400; // 30 days if remember, 1 day otherwise
+  document.cookie = `session=${token}; path=/; max-age=${maxAge}`;
 }
 
 function getSessionToken() {
@@ -715,6 +716,7 @@ function initAuthForms() {
     const status = loginForm.querySelector(".form-status");
     const btn = loginForm.querySelector('button[type="submit"]');
     const originalText = btn.textContent;
+    const remember = loginForm.querySelector('[name="remember"]')?.checked || false;
     
     btn.disabled = true;
     btn.textContent = "Signing in...";
@@ -728,7 +730,7 @@ function initAuthForms() {
       const data = await res.json();
       
       if (data.ok) {
-        setSessionToken(data.token);
+        setSessionToken(data.token, remember);
         status.textContent = "Signed in successfully!";
         status.className = "form-status ok";
         loginForm.classList.add("hidden");

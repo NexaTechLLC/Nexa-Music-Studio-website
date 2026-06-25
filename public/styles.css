@@ -1656,3 +1656,36 @@ h3 {
   font-size: 1.1rem;
   margin-bottom: 1.5rem;
 }
+
+.auth-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.remember-me input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--cyan);
+}
+
+.forgot-password {
+  font-size: 0.9rem;
+  color: var(--cyan);
+  text-decoration: none;
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}

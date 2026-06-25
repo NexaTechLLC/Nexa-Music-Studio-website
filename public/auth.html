@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Sign up or login to NEXAStudios™ Music for full track access." />
     <title>Sign In | NEXAStudios™ Music</title>
+    <link rel="icon" type="image/png" href="/assets/nexa-mark.png" />
     <link rel="stylesheet" href="/styles.css?v=6" />
   </head>
   <body>
@@ -52,6 +53,13 @@
             <div class="field">
               <label for="login-password">Password</label>
               <input id="login-password" name="password" type="password" required />
+            </div>
+            <div class="field auth-options">
+              <label class="remember-me">
+                <input id="login-remember" name="remember" type="checkbox" />
+                <span>Remember me</span>
+              </label>
+              <a href="#forgot-password" class="forgot-password">Forgot password?</a>
             </div>
             <button class="button primary" type="submit">Sign In</button>
             <p class="form-status" aria-live="polite"></p>
