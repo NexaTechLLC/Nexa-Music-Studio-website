@@ -6,3 +6,4 @@ storage/meta/*.json
 storage/contact-submissions.json
 !storage/media/.gitkeep
 !storage/meta/.gitkeep
+.vercel
