@@ -16,6 +16,7 @@ const sessionsFile = path.join(metaDir, "sessions.json");
 const artistsFile = path.join(metaDir, "artists.json");
 const albumsFile = path.join(metaDir, "albums.json");
 const streamsFile = path.join(metaDir, "streams.json");
+const passwordResetsFile = path.join(metaDir, "password-resets.json");
 const adminEmails = new Set(
   String(process.env.ADMIN_EMAILS || "")
     .split(",")
@@ -65,6 +66,7 @@ function ensureStorage() {
   if (!fs.existsSync(artistsFile)) fs.writeFileSync(artistsFile, "[]\n");
   if (!fs.existsSync(albumsFile)) fs.writeFileSync(albumsFile, "[]\n");
   if (!fs.existsSync(streamsFile)) fs.writeFileSync(streamsFile, "[]\n");
+  if (!fs.existsSync(passwordResetsFile)) fs.writeFileSync(passwordResetsFile, "[]\n");
 }
 
 function sendJson(response, statusCode, payload) {
@@ -231,6 +233,31 @@ function deleteSession(token) {
   const sessions = getSessions();
   const filtered = sessions.filter(s => s.token !== token);
   saveSessions(filtered);
+}
+
+function createPasswordResetToken(email) {
+  const resets = readJsonFile(passwordResetsFile);
+  const token = crypto.randomBytes(32).toString("hex");
+  const reset = {
+    token,
+    email: email.toLowerCase(),
+    createdAt: Date.now(),
+    expiresAt: Date.now() + (60 * 60 * 1000) // 1 hour
+  };
+  resets.unshift(reset);
+  writeJsonFile(passwordResetsFile, resets.slice(0, 1000));
+  return reset;
+}
+
+function getPasswordResetByToken(token) {
+  const resets = readJsonFile(passwordResetsFile);
+  return resets.find(r => r.token === token && r.expiresAt > Date.now());
+}
+
+function deletePasswordResetToken(token) {
+  const resets = readJsonFile(passwordResetsFile);
+  const filtered = resets.filter(r => r.token !== token);
+  writeJsonFile(passwordResetsFile, filtered);
 }
 
 function getUserFromSession(request) {
@@ -524,8 +551,8 @@ async function handleMediaUpload(request, response) {
     return;
   }
 
-  if (parsed && parsed.buffer.length > 25 * 1024 * 1024) {
-    sendJson(response, 413, { ok: false, error: "File must be 25MB or smaller." });
+  if (parsed && parsed.buffer.length > 100 * 1024 * 1024) {
+    sendJson(response, 413, { ok: false, error: "File must be 100MB or smaller." });
     return;
   }
 
@@ -800,6 +827,68 @@ async function handleLogout(request, response) {
   sendJson(response, 200, { ok: true });
 }
 
+async function handlePasswordResetRequest(request, response) {
+  const body = JSON.parse(await collectBody(request, 1024 * 1024) || "{}");
+  const email = sanitizeText(body.email, "").toLowerCase();
+
+  if (!email) {
+    sendJson(response, 400, { ok: false, error: "Email is required." });
+    return;
+  }
+
+  const users = getUsers();
+  const user = users.find(u => u.email === email);
+
+  if (!user) {
+    sendJson(response, 200, { ok: true, message: "If an account exists with this email, a reset link will be sent." });
+    return;
+  }
+
+  const reset = createPasswordResetToken(email);
+  
+  sendJson(response, 200, { 
+    ok: true, 
+    message: "If an account exists with this email, a reset link will be sent.",
+    resetToken: reset.token 
+  });
+}
+
+async function handlePasswordResetConfirm(request, response) {
+  const body = JSON.parse(await collectBody(request, 1024 * 1024) || "{}");
+  const token = sanitizeText(body.token, "");
+  const password = body.password;
+
+  if (!token || !password) {
+    sendJson(response, 400, { ok: false, error: "Token and password are required." });
+    return;
+  }
+
+  if (password.length < 6) {
+    sendJson(response, 400, { ok: false, error: "Password must be at least 6 characters." });
+    return;
+  }
+
+  const reset = getPasswordResetByToken(token);
+  if (!reset) {
+    sendJson(response, 400, { ok: false, error: "Invalid or expired reset token." });
+    return;
+  }
+
+  const users = getUsers();
+  const userIndex = users.findIndex(u => u.email === reset.email);
+  if (userIndex === -1) {
+    sendJson(response, 400, { ok: false, error: "User not found." });
+    return;
+  }
+
+  users[userIndex].password = hashPassword(password);
+  users[userIndex].updatedAt = new Date().toISOString();
+  saveUsers(users);
+  deletePasswordResetToken(token);
+
+  sendJson(response, 200, { ok: true, message: "Password has been reset successfully." });
+}
+
 async function handleCheckout(request, response) {
   const body = JSON.parse(await collectBody(request, 1024 * 1024) || "{}");
   const productName = sanitizeText(body.productName, "NEXAStudios™ Music product");
@@ -870,6 +959,14 @@ async function handleApi(request, response, pathname) {
     }
     if (pathname === "/api/logout" && request.method === "POST") {
       await handleLogout(request, response);
+      return true;
+    }
+    if (pathname === "/api/password-reset/request" && request.method === "POST") {
+      await handlePasswordResetRequest(request, response);
+      return true;
+    }
+    if (pathname === "/api/password-reset/confirm" && request.method === "POST") {
+      await handlePasswordResetConfirm(request, response);
       return true;
     }
     if (pathname === "/api/me" && request.method === "GET") {

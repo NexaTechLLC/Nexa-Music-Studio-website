@@ -692,8 +692,14 @@ function initAuthForms() {
   const signupForm = document.getElementById("signup-form");
   const authTabs = document.querySelectorAll(".auth-tab");
   const authSuccess = document.getElementById("auth-success");
+  const forgotPasswordLink = document.querySelector(".forgot-password");
 
   if (!loginForm || !signupForm) return;
+
+  forgotPasswordLink?.addEventListener("click", (e) => {
+    e.preventDefault();
+    window.location.href = "/reset-password";
+  });
 
   authTabs.forEach(tab => {
     tab.addEventListener("click", () => {
@@ -777,6 +783,107 @@ function initAuthForms() {
         authSuccess.querySelector(".admin-link")?.toggleAttribute("hidden", data.user?.role !== "admin");
       } else {
         status.textContent = data.error || "Sign up failed";
+        status.className = "form-status err";
+      }
+    } catch (err) {
+      status.textContent = "Network error. Please try again.";
+      status.className = "form-status err";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  });
+}
+
+function initPasswordReset() {
+  const requestForm = document.getElementById("request-form");
+  const confirmForm = document.getElementById("confirm-form");
+  const authTabs = document.querySelectorAll(".auth-tab");
+  const resetSuccess = document.getElementById("reset-success");
+
+  if (!requestForm || !confirmForm) return;
+
+  authTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      authTabs.forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      
+      const tabName = tab.dataset.tab;
+      if (tabName === "request") {
+        requestForm.classList.remove("hidden");
+        confirmForm.classList.add("hidden");
+      } else {
+        requestForm.classList.add("hidden");
+        confirmForm.classList.remove("hidden");
+      }
+    });
+  });
+
+  requestForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const status = requestForm.querySelector(".form-status");
+    const btn = requestForm.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+    
+    btn.disabled = true;
+    btn.textContent = "Sending...";
+    
+    try {
+      const res = await fetch("/api/password-reset/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(new FormData(requestForm)))
+      });
+      const data = await res.json();
+      
+      if (data.ok) {
+        status.textContent = data.message || "Reset link sent. Check your email for the token.";
+        status.className = "form-status ok";
+        if (data.resetToken) {
+          document.getElementById("reset-token").value = data.resetToken;
+          authTabs.forEach(t => t.classList.remove("active"));
+          authTabs[1].classList.add("active");
+          requestForm.classList.add("hidden");
+          confirmForm.classList.remove("hidden");
+        }
+      } else {
+        status.textContent = data.error || "Request failed";
+        status.className = "form-status err";
+      }
+    } catch (err) {
+      status.textContent = "Network error. Please try again.";
+      status.className = "form-status err";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  });
+
+  confirmForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const status = confirmForm.querySelector(".form-status");
+    const btn = confirmForm.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+    
+    btn.disabled = true;
+    btn.textContent = "Resetting...";
+    
+    try {
+      const res = await fetch("/api/password-reset/confirm", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.fromEntries(new FormData(confirmForm)))
+      });
+      const data = await res.json();
+      
+      if (data.ok) {
+        status.textContent = data.message || "Password reset successful!";
+        status.className = "form-status ok";
+        requestForm.classList.add("hidden");
+        confirmForm.classList.add("hidden");
+        resetSuccess.hidden = false;
+      } else {
+        status.textContent = data.error || "Reset failed";
         status.className = "form-status err";
       }
     } catch (err) {
@@ -913,6 +1020,7 @@ initPurchaseSuccess();
 initMediaUpload();
 initAdminForms();
 initAuthForms();
+initPasswordReset();
 initPublicCatalog();
 initAudioModal();
 initAdminGate();
