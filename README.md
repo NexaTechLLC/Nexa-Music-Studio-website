@@ -21,4 +21,4 @@ npm run build
 npm start
 ```
 
-Because `next.config.js` uses `output: "standalone"`, `npm start` runs the generated `.next/standalone/server.js`. The project no longer uses a custom root `server.js`; Next.js handles pages, `/api/*`, and `/media/*`.
+The project no longer uses a custom root `server.js`; Next.js handles pages, `/api/*`, and `/media/*`. The repo includes a conventional `pages/index.js` entry so hosting providers can detect it as a standard Next.js project.
