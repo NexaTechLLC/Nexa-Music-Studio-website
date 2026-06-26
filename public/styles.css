@@ -486,6 +486,22 @@ h3 {
   font-weight: 900;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.track-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.track-actions .preview-btn {
+  flex-shrink: 0;
+}
+
+.track-actions .track-link {
+  flex: 1;
 }
 
 .artist-card > .track-number {
