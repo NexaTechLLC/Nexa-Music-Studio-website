@@ -17,6 +17,7 @@ const artistsFile = path.join(metaDir, "artists.json");
 const albumsFile = path.join(metaDir, "albums.json");
 const streamsFile = path.join(metaDir, "streams.json");
 const passwordResetsFile = path.join(metaDir, "password-resets.json");
+const reviewsFile = path.join(metaDir, "reviews.json");
 const adminEmails = new Set(
   String(process.env.ADMIN_EMAILS || "")
     .split(",")
@@ -67,6 +68,7 @@ function ensureStorage() {
   if (!fs.existsSync(albumsFile)) fs.writeFileSync(albumsFile, "[]\n");
   if (!fs.existsSync(streamsFile)) fs.writeFileSync(streamsFile, "[]\n");
   if (!fs.existsSync(passwordResetsFile)) fs.writeFileSync(passwordResetsFile, "[]\n");
+  if (!fs.existsSync(reviewsFile)) fs.writeFileSync(reviewsFile, "[]\n");
 }
 
 function sendJson(response, statusCode, payload) {
@@ -258,6 +260,14 @@ function deletePasswordResetToken(token) {
   const resets = readJsonFile(passwordResetsFile);
   const filtered = resets.filter(r => r.token !== token);
   writeJsonFile(passwordResetsFile, filtered);
+}
+
+function getReviews() {
+  return readJsonFile(reviewsFile);
+}
+
+function saveReviews(reviews) {
+  writeJsonFile(reviewsFile, reviews);
 }
 
 function getUserFromSession(request) {
@@ -889,6 +899,66 @@ async function handlePasswordResetConfirm(request, response) {
   sendJson(response, 200, { ok: true, message: "Password has been reset successfully." });
 }
 
+async function handleGetReviews(request, response) {
+  const url = new URL(request.url, `http://${request.headers.host}`);
+  const targetType = url.searchParams.get("type") || "track";
+  const targetId = url.searchParams.get("id");
+
+  const reviews = getReviews();
+  const filtered = reviews.filter(r => 
+    r.targetType === targetType && r.targetId === targetId && r.approved !== false
+  );
+
+  sendJson(response, 200, { ok: true, reviews: filtered });
+}
+
+async function handleCreateReview(request, response) {
+  const user = getUserFromSession(request);
+  if (!user) {
+    sendJson(response, 401, { ok: false, error: "Authentication required." });
+    return;
+  }
+
+  const body = JSON.parse(await collectBody(request, 1024 * 1024) || "{}");
+  const targetType = sanitizeText(body.targetType, "track");
+  const targetId = sanitizeText(body.targetId, "");
+  const rating = parseInt(body.rating) || 5;
+  const comment = sanitizeText(body.comment, "");
+
+  if (!targetId) {
+    sendJson(response, 400, { ok: false, error: "Target ID is required." });
+    return;
+  }
+
+  if (rating < 1 || rating > 5) {
+    sendJson(response, 400, { ok: false, error: "Rating must be between 1 and 5." });
+    return;
+  }
+
+  if (comment.length > 500) {
+    sendJson(response, 400, { ok: false, error: "Comment must be 500 characters or less." });
+    return;
+  }
+
+  const reviews = getReviews();
+  const review = {
+    id: crypto.randomUUID(),
+    userId: user.id,
+    userName: user.name,
+    targetType,
+    targetId,
+    rating,
+    comment,
+    createdAt: new Date().toISOString(),
+    approved: true
+  };
+
+  reviews.unshift(review);
+  saveReviews(reviews);
+
+  sendJson(response, 201, { ok: true, review });
+}
+
 async function handleCheckout(request, response) {
   const body = JSON.parse(await collectBody(request, 1024 * 1024) || "{}");
   const productName = sanitizeText(body.productName, "NEXAStudios™ Music product");
@@ -967,6 +1037,14 @@ async function handleApi(request, response, pathname) {
     }
     if (pathname === "/api/password-reset/confirm" && request.method === "POST") {
       await handlePasswordResetConfirm(request, response);
+      return true;
+    }
+    if (pathname === "/api/reviews" && request.method === "GET") {
+      await handleGetReviews(request, response);
+      return true;
+    }
+    if (pathname === "/api/reviews" && request.method === "POST") {
+      await handleCreateReview(request, response);
       return true;
     }
     if (pathname === "/api/me" && request.method === "GET") {

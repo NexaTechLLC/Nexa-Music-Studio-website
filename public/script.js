@@ -896,6 +896,147 @@ function initPasswordReset() {
   });
 }
 
+function initReviews() {
+  const reviewType = document.getElementById("review-type");
+  const reviewTarget = document.getElementById("review-target");
+  const reviewsList = document.getElementById("reviews-list");
+  const reviewForm = document.getElementById("review-form");
+  const authRequired = document.getElementById("auth-required");
+
+  if (!reviewType || !reviewTarget || !reviewsList) return;
+
+  const tracks = [
+    { id: "odu-mi-o", name: "Odu mi o" },
+    { id: "akala-aka-m-o", name: "Akala aka M O" }
+  ];
+
+  const artists = [
+    { id: "black-indigo", name: "BLACK INDIGO" },
+    { id: "dr-amaka-aloy", name: "DR. AMAKA ALOY" }
+  ];
+
+  function populateTargets(type) {
+    reviewTarget.innerHTML = '<option value="">-- Select --</option>';
+    const items = type === "track" ? tracks : artists;
+    items.forEach(item => {
+      const option = document.createElement("option");
+      option.value = item.id;
+      option.textContent = item.name;
+      reviewTarget.appendChild(option);
+    });
+  }
+
+  async function loadReviews() {
+    const type = reviewType.value;
+    const targetId = reviewTarget.value;
+
+    if (!targetId) {
+      reviewsList.innerHTML = "<p class='empty-state'>Select a track or artist to view reviews.</p>";
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/reviews?type=${type}&id=${targetId}`);
+      const data = await res.json();
+
+      if (data.ok && data.reviews.length > 0) {
+        reviewsList.innerHTML = data.reviews.map(review => `
+          <div class="review-item">
+            <div class="review-header">
+              <span class="review-author">${review.userName}</span>
+              <span class="review-rating">${"★".repeat(review.rating)}${"☆".repeat(5 - review.rating)}</span>
+            </div>
+            <div class="review-date">${new Date(review.createdAt).toLocaleDateString()}</div>
+            <div class="review-comment">${review.comment}</div>
+          </div>
+        `).join("");
+      } else {
+        reviewsList.innerHTML = "<p class='empty-state'>No reviews yet. Be the first to review!</p>";
+      }
+    } catch (err) {
+      reviewsList.innerHTML = "<p class='empty-state'>Error loading reviews.</p>";
+    }
+  }
+
+  async function checkAuth() {
+    try {
+      const res = await fetch("/api/me");
+      const data = await res.json();
+      if (data.ok) {
+        reviewForm.hidden = false;
+        authRequired.hidden = true;
+      } else {
+        reviewForm.hidden = true;
+        authRequired.hidden = false;
+      }
+    } catch (err) {
+      reviewForm.hidden = true;
+      authRequired.hidden = false;
+    }
+  }
+
+  reviewType.addEventListener("change", () => {
+    populateTargets(reviewType.value);
+    reviewsList.innerHTML = "<p class='empty-state'>Select a track or artist to view reviews.</p>";
+  });
+
+  reviewTarget.addEventListener("change", loadReviews);
+
+  if (reviewForm) {
+    reviewForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const status = reviewForm.querySelector(".form-status");
+      const btn = reviewForm.querySelector('button[type="submit"]');
+      const originalText = btn.textContent;
+
+      const targetType = reviewType.value;
+      const targetId = reviewTarget.value;
+
+      if (!targetId) {
+        status.textContent = "Please select a track or artist.";
+        status.className = "form-status err";
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Submitting...";
+
+      try {
+        const res = await fetch("/api/reviews", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            targetType,
+            targetId,
+            rating: parseInt(reviewForm.rating.value),
+            comment: reviewForm.comment.value
+          })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+          status.textContent = "Review submitted successfully!";
+          status.className = "form-status ok";
+          reviewForm.reset();
+          loadReviews();
+        } else {
+          status.textContent = data.error || "Submission failed";
+          status.className = "form-status err";
+        }
+      } catch (err) {
+        status.textContent = "Network error. Please try again.";
+        status.className = "form-status err";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    });
+  }
+
+  populateTargets("track");
+  checkAuth();
+}
+
 function initAudioModal() {
   const modal = document.getElementById("audio-modal");
   const modalPlayer = document.getElementById("audio-modal-player");
@@ -1021,6 +1162,7 @@ initMediaUpload();
 initAdminForms();
 initAuthForms();
 initPasswordReset();
+initReviews();
 initPublicCatalog();
 initAudioModal();
 initAdminGate();

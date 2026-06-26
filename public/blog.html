@@ -41,6 +41,52 @@
           <article><p>Catalog</p><h3>Why direct-to-fan downloads still matter for premium listeners</h3><span>Store education for buyers who want master-quality files.</span></article>
         </div>
       </section>
+
+      <section class="section page-section reveal">
+        <div class="section-heading">
+          <p class="eyebrow">Reviews</p>
+          <h2>Share your thoughts on our music and artists</h2>
+        </div>
+        
+        <div class="reviews-container">
+          <div class="review-filters">
+            <label for="review-type">Review Type:</label>
+            <select id="review-type">
+              <option value="track">Track</option>
+              <option value="artist">Artist</option>
+            </select>
+            <label for="review-target">Select:</label>
+            <select id="review-target">
+              <option value="">-- Select --</option>
+            </select>
+          </div>
+
+          <div id="reviews-list" class="reviews-list"></div>
+
+          <div class="review-form-container">
+            <h3>Leave a Review</h3>
+            <form id="review-form" class="review-form">
+              <div class="field">
+                <label for="review-rating">Rating (1-5)</label>
+                <select id="review-rating" name="rating" required>
+                  <option value="5">⭐⭐⭐⭐⭐ - Excellent</option>
+                  <option value="4">⭐⭐⭐⭐ - Very Good</option>
+                  <option value="3">⭐⭐⭐ - Good</option>
+                  <option value="2">⭐⭐ - Fair</option>
+                  <option value="1">⭐ - Poor</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="review-comment">Your Review</label>
+                <textarea id="review-comment" name="comment" rows="4" maxlength="500" placeholder="Share your thoughts... (max 500 characters)" required></textarea>
+              </div>
+              <p class="form-status" aria-live="polite"></p>
+              <button class="button primary" type="submit">Submit Review</button>
+            </form>
+            <p id="auth-required" class="auth-message" hidden>Please <a href="/auth">sign in</a> to leave a review.</p>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer class="site-footer"><img src="/assets/nexa-mark.png" alt="" /><p>&copy; <span id="year"></span> NEXAStudios™ Music. All rights reserved.</p><a href="https://www.youtube.com/@NEXAStudiosTMMusic" target="_blank" rel="noopener">YouTube</a><a href="/contact">Contact</a></footer>

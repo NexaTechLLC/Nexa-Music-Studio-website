@@ -570,6 +570,127 @@ h3 {
   object-position: center top;
 }
 
+.reviews-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.review-filters {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.review-filters label {
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.review-filters select {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.reviews-list {
+  margin-bottom: 2rem;
+}
+
+.review-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.review-author {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.review-rating {
+  color: #ffd700;
+  font-size: 1.1rem;
+}
+
+.review-date {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+
+.review-comment {
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.review-form-container {
+  background: linear-gradient(135deg, rgba(0, 255, 255, 0.05) 0%, rgba(0, 200, 255, 0.02) 100%);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 2rem;
+}
+
+.review-form-container h3 {
+  margin-bottom: 1.5rem;
+  color: var(--cyan);
+}
+
+.review-form .field {
+  margin-bottom: 1.5rem;
+}
+
+.review-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.review-form select,
+.review-form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--background);
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.review-form textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.auth-message {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+.auth-message a {
+  color: var(--cyan);
+  text-decoration: none;
+}
+
+.auth-message a:hover {
+  text-decoration: underline;
+}
+
 .artist-card > .track-number {
   width: auto;
   height: auto;
