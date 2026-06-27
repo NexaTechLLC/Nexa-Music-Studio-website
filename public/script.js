@@ -266,16 +266,21 @@ function initContactForms() {
 function initStoreFilters() {
   const btns = document.querySelectorAll(".filter-btn");
   if (!btns.length) return;
+  let activeFilter = document.querySelector(".filter-btn.active")?.dataset.filter || "all";
+
+  window.applyStoreFilter = () => {
+    document.querySelectorAll(".product-card").forEach((card) => {
+      const regions = String(card.dataset.region || "").split(/\s+/).filter(Boolean);
+      card.hidden = activeFilter !== "all" && !regions.includes(activeFilter);
+    });
+  };
 
   btns.forEach((btn) => {
     btn.addEventListener("click", () => {
       btns.forEach((item) => item.classList.remove("active"));
       btn.classList.add("active");
-      const filter = btn.dataset.filter;
-      document.querySelectorAll(".product-card").forEach((card) => {
-        const regions = String(card.dataset.region || "").split(/\s+/).filter(Boolean);
-        card.hidden = filter !== "all" && !regions.includes(filter);
-      });
+      activeFilter = btn.dataset.filter;
+      window.applyStoreFilter();
     });
   });
 }
@@ -482,6 +487,7 @@ async function initPublicCatalog() {
 
     if (storeCatalog) {
       storeCatalog.innerHTML = media.length ? media.map(storeCatalogCard).join("") : "";
+      window.applyStoreFilter?.();
     }
   } catch {
     artistCatalogs.forEach((container) => {
@@ -568,6 +574,73 @@ async function loadAdminDashboard() {
       <tr><td>${escapeHtml(track.title)}</td><td>${escapeHtml(track.artist || "-")}</td><td>${escapeHtml(track.album || "-")}</td><td>${escapeHtml(track.genre || "-")}</td><td>${escapeHtml(track.streams.toLocaleString())}</td></tr>
     `));
   }
+}
+
+function updateProfileUi(user) {
+  if (!user) return;
+  const nameEl = document.getElementById("admin-profile-name");
+  const emailEl = document.getElementById("admin-profile-email");
+  const nameInput = document.getElementById("profile-name");
+  const emailInput = document.getElementById("profile-email");
+  if (nameEl) nameEl.textContent = user.name || "Admin";
+  if (emailEl) emailEl.textContent = user.email || "-";
+  if (nameInput) nameInput.value = user.name || "";
+  if (emailInput) emailInput.value = user.email || "";
+}
+
+function initProfileSettings() {
+  const form = document.getElementById("profile-form");
+  if (!form) return;
+  const status = form.querySelector(".form-status");
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const btn = form.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Saving";
+    try {
+      const payload = Object.fromEntries(new FormData(form));
+      if (!payload.newPassword) {
+        delete payload.currentPassword;
+        delete payload.newPassword;
+      }
+      const res = await fetch("/api/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Profile update failed");
+      if (data.token) setSessionToken(data.token, true);
+      updateProfileUi(data.user);
+      form.querySelector('[name="currentPassword"]').value = "";
+      form.querySelector('[name="newPassword"]').value = "";
+      status.textContent = "Profile updated.";
+      status.className = "form-status ok";
+    } catch (error) {
+      status.textContent = error.message || "Profile update failed.";
+      status.className = "form-status err";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  });
+}
+
+function initLogoutButtons() {
+  document.querySelectorAll("[data-logout]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      btn.disabled = true;
+      try {
+        await fetch("/api/logout", { method: "POST" });
+      } catch {
+        // Local cookie removal is enough for client logout.
+      }
+      clearSessionToken();
+      window.location.href = "/auth";
+    });
+  });
 }
 
 function initAdminForms() {
@@ -682,7 +755,8 @@ function initMediaUpload() {
 
 function setSessionToken(token, remember = false) {
   const maxAge = remember ? 2592000 : 86400; // 30 days if remember, 1 day otherwise
-  document.cookie = `session=${token}; path=/; max-age=${maxAge}`;
+  const secure = location.protocol === "https:" ? "; Secure" : "";
+  document.cookie = `session=${token}; path=/; max-age=${maxAge}; SameSite=Lax${secure}`;
 }
 
 function getSessionToken() {
@@ -692,7 +766,7 @@ function getSessionToken() {
 }
 
 function clearSessionToken() {
-  document.cookie = "session=; path=/; max-age=0";
+  document.cookie = "session=; path=/; max-age=0; SameSite=Lax";
 }
 
 async function checkAuth() {
@@ -1182,6 +1256,7 @@ async function initAdminGate() {
   const isAdminPage = Boolean(document.getElementById("media-upload-form") && document.body.classList.contains("admin-page"));
   const user = await checkAuth();
   updateAdminLinks(user);
+  updateProfileUi(user);
 
   if (isAdminPage && (!user || user.role !== "admin")) {
     window.location.href = "/auth";
@@ -1199,6 +1274,8 @@ initBuyButtons();
 initPurchaseSuccess();
 initMediaUpload();
 initAdminForms();
+initProfileSettings();
+initLogoutButtons();
 initAuthForms();
 initPasswordReset();
 initReviews();

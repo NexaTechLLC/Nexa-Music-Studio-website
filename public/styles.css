@@ -109,6 +109,24 @@ img {
   outline: none;
 }
 
+.nav-action {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.55rem 0.85rem;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.nav-action:hover,
+.nav-action:focus-visible {
+  border-color: rgba(17, 200, 255, 0.35);
+  color: var(--text);
+  outline: none;
+}
+
 .nav-toggle {
   display: none;
   width: 44px;
@@ -591,6 +609,13 @@ h3 {
   color: var(--cyan);
   display: block;
   margin-bottom: 0.3rem;
+}
+
+.artist-stream-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1rem;
 }
 
 .artist-image {
@@ -1449,6 +1474,37 @@ h3 {
   gap: 1rem;
 }
 
+.admin-account-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.admin-account-bar span,
+.admin-account-bar small {
+  display: block;
+  color: var(--muted);
+}
+
+.admin-account-bar span {
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-account-bar strong {
+  display: block;
+  color: var(--text);
+  font-size: 1.05rem;
+}
+
 .admin-stats article,
 .admin-panel,
 .admin-table-card {
@@ -1623,8 +1679,10 @@ h3 {
     display: flex;
   }
 
-  .site-nav a {
+  .site-nav a,
+  .nav-action {
     padding: 0.95rem 1rem;
+    text-align: left;
   }
 
   .hero,
@@ -1691,7 +1749,8 @@ h3 {
   }
 
   .contact-section,
-  .site-footer {
+  .site-footer,
+  .admin-account-bar {
     align-items: flex-start;
     flex-direction: column;
   }

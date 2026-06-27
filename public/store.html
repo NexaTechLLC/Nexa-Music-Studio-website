@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="NEXAStudios™ Music store for albums, tracks, bundles, and premium audio downloads." />
-    <title>Store | NEXAStudios™ Music</title>
+    <meta name="description" content="NEXAStudios™ Music music library for albums, tracks, bundles, and premium audio downloads." />
+    <title>Music Library | NEXAStudios™ Music</title>
     <link rel="icon" type="image/png" href="/assets/nexa-mark.png" />
-    <link rel="stylesheet" href="/styles.css?v=13" />
+    <link rel="stylesheet" href="/styles.css?v=14" />
   </head>
   <body>
     <header class="site-header" id="top">
@@ -15,7 +15,7 @@
       <nav class="site-nav" aria-label="Primary navigation">
         <a href="/artists">Artists</a>
         <a href="/studio">Studio</a>
-        <a href="/store" aria-current="page">Store</a>
+        <a href="/store" aria-current="page">Music Library</a>
         <a href="/blog">Blog</a>
         <a href="/contact">Contact</a>
         <a href="/auth">Sign In</a>
@@ -27,9 +27,9 @@
     <main>
       <section class="page-hero reveal">
         <div>
-          <p class="eyebrow">Store</p>
-          <h1>One catalog for albums, tracks, and bundles.</h1>
-          <p>A centralized storefront gives listeners one place to buy releases from BLACK INDIGO and DR. AMAKA ALOY.</p>
+          <p class="eyebrow">Music Library</p>
+          <h1>Music library for tracks, albums, and artist drops.</h1>
+          <p>Stream previews, unlock full tracks, filter by genre, and follow NEXAStudios™ Music artists from one catalog experience.</p>
         </div>
         <img src="/assets/nexa-logo-classic.png" alt="NEXAStudios™ Music logo" />
       </section>
@@ -52,7 +52,7 @@
           <button class="filter-btn" type="button" data-filter="instrumental">Instrumental</button>
         </div>
 
-        <div id="purchase-success" class="purchase-success" hidden>Purchase complete. Check your email for your download link.</div>
+        <div id="purchase-success" class="purchase-success" hidden>Subscription active. Your music library access is ready.</div>
 
         <div class="store-leaderboard">
           <div><span>Featured artist</span><strong>BLACK INDIGO</strong></div>
@@ -61,7 +61,7 @@
         </div>
         <div class="product-grid reveal-group" id="product-grid"></div>
         <div class="store-catalog" data-store-catalog></div>
-        <p style="margin-top:1.5rem;font-size:0.82rem;color:var(--muted);">All albums: MP3 320kbps + WAV. Instant download can be enabled after Stripe Price IDs are configured.</p>
+        <p style="margin-top:1.5rem;font-size:0.82rem;color:var(--muted);">Full-track streaming requires a signed-in account. Direct downloads and paid subscriptions can be enabled after payment configuration.</p>
       </section>
     </main>
 
@@ -93,6 +93,6 @@
         <audio id="audio-modal-player" preload="metadata"></audio>
       </div>
     </div>
-    <script src="/script.js?v=13"></script>
+    <script src="/script.js?v=14"></script>
   </body>
 </html>
