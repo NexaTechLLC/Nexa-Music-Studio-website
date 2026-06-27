@@ -394,13 +394,7 @@ function isPublicMedia(item) {
   const title = String(item.title || "").toLowerCase();
   const artist = String(item.artist || "").toLowerCase();
   const isAmakaAkala = title.includes("akala aka m o") && (item.artistId === "dr-amaka-aloy" || artist.includes("amaka"));
-  const isStaticTrack = (item.artistId === "black-indigo" || artistSlug(item.artist) === "black-indigo") && title === "odu mi o";
-  return !isAmakaAkala && !isStaticTrack && String(item.releaseStatus || "active").toLowerCase() === "active";
-}
-
-function isStaticArtistPageTrack(item) {
-  const title = String(item.title || "").toLowerCase();
-  return (item.artistId === "black-indigo" || artistSlug(item.artist) === "black-indigo") && title === "akala aka m o";
+  return !isAmakaAkala && String(item.releaseStatus || "active").toLowerCase() === "active";
 }
 
 function publicTrackButton(item, label = "Listen") {
@@ -408,7 +402,8 @@ function publicTrackButton(item, label = "Listen") {
 }
 
 function previewUrl(item) {
-  return item.provider === "youtube" ? item.embedUrl || item.url : `${item.url}?preview=1`;
+  if (item.provider === "youtube") return item.embedUrl || item.url;
+  return item.snippetUrl || `${item.url}?preview=1`;
 }
 
 function publicPreviewButton(item) {
@@ -430,10 +425,18 @@ function publicTrackMeta(item) {
 function publicCatalogItem(item, trackNumber) {
   return `
     <article class="catalog-track">
-      <span class="track-number">Track ${trackNumber}:</span>
-      ${publicPreviewButton(item)}
-      <span class="track-separator" aria-hidden="true">|</span>
-      ${publicTrackButton(item, `Full Track - ${item.title}`)}
+      <div class="track-rank">Track ${trackNumber}</div>
+      <div class="track-main">
+        <strong>${escapeHtml(item.title)}</strong>
+        <span>${escapeHtml(item.artist || "NEXAStudios™ Music")} · ${escapeHtml(item.album || "Single")} · ${escapeHtml(item.genre || "Catalog")}</span>
+      </div>
+      <div class="track-metrics">
+        <span>${Number(item.streams || 0).toLocaleString()} streams</span>
+      </div>
+      <div class="track-actions">
+        ${publicPreviewButton(item)}
+        ${publicTrackButton(item, "Full Track")}
+      </div>
     </article>
   `;
 }
@@ -443,12 +446,13 @@ function storeCatalogCard(item) {
     <article class="product-card" data-region="${escapeHtml(categorySlugs(`${item.genre || ""} ${item.artist || ""}`))}">
       <div class="product-thumb afro-thumb"></div>
       <div class="product-info">
-        <p class="eyebrow">${escapeHtml(item.artist || "NEXAStudios™ Music")} · ${escapeHtml(item.album || "Release")}</p>
+        <p class="eyebrow">Track ${escapeHtml(item.trackNumber || "-")} · ${escapeHtml(item.artist || "NEXAStudios™ Music")}</p>
         <h3>${escapeHtml(item.title)}</h3>
-        <p>${escapeHtml(publicTrackMeta(item))} uploaded from the label media vault.</p>
+        <p>${escapeHtml(item.album || "Single")} · ${escapeHtml(item.genre || publicTrackMeta(item))} · ${Number(item.streams || 0).toLocaleString()} streams</p>
         <div class="product-actions">
-          <span class="product-price">$9.99</span>
-          ${publicTrackButton(item, item.isSnippet ? "Preview" : "Listen")}
+          <span class="product-price">${Number(item.streams || 0).toLocaleString()}</span>
+          ${publicPreviewButton(item)}
+          ${publicTrackButton(item, "Full Track")}
         </div>
       </div>
     </article>
@@ -470,8 +474,7 @@ async function initPublicCatalog() {
       const artistId = container.dataset.publicCatalog;
       const trackOffset = Number(container.dataset.trackOffset || 0);
       const tracks = media
-        .filter((item) => item.artistId === artistId || artistSlug(item.artist) === artistId)
-        .filter((item) => !isStaticArtistPageTrack(item));
+        .filter((item) => item.artistId === artistId || artistSlug(item.artist) === artistId);
       container.innerHTML = tracks.length
         ? tracks.map((item, index) => publicCatalogItem(item, trackOffset + index + 1)).join("")
         : '<p class="empty-state compact">No public releases uploaded yet.</p>';

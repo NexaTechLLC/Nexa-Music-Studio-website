@@ -6,7 +6,7 @@
     <meta name="description" content="NEXAStudios™ Music store for albums, tracks, bundles, and premium audio downloads." />
     <title>Store | NEXAStudios™ Music</title>
     <link rel="icon" type="image/png" href="/assets/nexa-mark.png" />
-    <link rel="stylesheet" href="/styles.css?v=12" />
+    <link rel="stylesheet" href="/styles.css?v=13" />
   </head>
   <body>
     <header class="site-header" id="top">
@@ -54,21 +54,12 @@
 
         <div id="purchase-success" class="purchase-success" hidden>Purchase complete. Check your email for your download link.</div>
 
-        <div class="product-grid reveal-group" id="product-grid">
-          <article class="product-card" data-region="afrosounds hip-hop-rap" data-audio="/audio/1782309923941-7aff0f41-odu-mi-o-1-male-snippet.mp3">
-            <div class="product-thumb afro-thumb"></div>
-            <div class="product-info">
-              <p class="eyebrow">BLACK INDIGO · Album</p>
-              <h3>Odu mi o</h3>
-              <p>BLACK INDIGO single with modern Afrobeat pulse, hiphop edge, bold hooks, and high-energy production.</p>
-              <div class="product-actions">
-                <span class="product-price">$9.99</span>
-                <button class="preview-btn" type="button" aria-label="Preview Odu mi o"><svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true"><path d="M2 1.5l9 4.5-9 4.5V1.5z"/></svg><span>Preview</span></button>
-                <button class="button secondary listen-btn" data-audio="/audio/1782309923941-7aff0f41-odu-mi-o-1-male.mp3" type="button">Listen</button>
-              </div>
-            </div>
-          </article>
+        <div class="store-leaderboard">
+          <div><span>Featured artist</span><strong>BLACK INDIGO</strong></div>
+          <div><span>Catalog tracks</span><strong>2</strong></div>
+          <div><span>Primary sounds</span><strong>Afrosounds / Hip-Hop</strong></div>
         </div>
+        <div class="product-grid reveal-group" id="product-grid"></div>
         <div class="store-catalog" data-store-catalog></div>
         <p style="margin-top:1.5rem;font-size:0.82rem;color:var(--muted);">All albums: MP3 320kbps + WAV. Instant download can be enabled after Stripe Price IDs are configured.</p>
       </section>
@@ -102,6 +93,6 @@
         <audio id="audio-modal-player" preload="metadata"></audio>
       </div>
     </div>
-    <script src="/script.js?v=12"></script>
+    <script src="/script.js?v=13"></script>
   </body>
 </html>

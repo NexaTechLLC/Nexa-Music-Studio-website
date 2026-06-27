@@ -459,22 +459,23 @@ h3 {
 }
 
 .artist-catalog {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.55rem 1rem;
+  display: grid;
+  gap: 0.75rem;
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--line);
 }
 
 .catalog-track {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(72px, auto) 1fr auto auto;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 0.35rem 0.6rem;
+  gap: 0.8rem;
   min-width: 0;
-  padding-right: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .track-number {
@@ -487,6 +488,38 @@ h3 {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   margin-bottom: 0.5rem;
+}
+
+.track-rank {
+  color: var(--cyan);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.track-main {
+  min-width: 0;
+}
+
+.track-main strong,
+.track-main span {
+  display: block;
+}
+
+.track-main strong {
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.track-main span,
+.track-metrics span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.track-metrics {
+  white-space: nowrap;
 }
 
 .track-actions {
@@ -1023,6 +1056,37 @@ h3 {
   max-width: 980px;
 }
 
+.store-leaderboard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+  margin-bottom: 1.25rem;
+}
+
+.store-leaderboard div {
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.store-leaderboard span,
+.store-leaderboard strong {
+  display: block;
+}
+
+.store-leaderboard span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.store-leaderboard strong {
+  margin-top: 0.3rem;
+  color: var(--text);
+}
+
 .filter-btn {
   padding: 0.5rem 1rem;
   border: 1px solid var(--line);
@@ -1053,6 +1117,14 @@ h3 {
   transition: transform 200ms ease, border-color 200ms ease;
 }
 
+.store-catalog {
+  margin-top: 1rem;
+}
+
+.store-catalog .product-card {
+  grid-template-rows: 140px 1fr;
+}
+
 .product-card:hover {
   transform: translateY(-4px);
   border-color: rgba(17, 200, 255, 0.3);
@@ -1060,6 +1132,73 @@ h3 {
 
 .product-thumb {
   min-height: 180px;
+}
+
+.store-catalog .product-thumb {
+  min-height: 140px;
+}
+
+.studio-grid,
+.instrument-board,
+.label-ops {
+  display: grid;
+  gap: 1rem;
+}
+
+.studio-grid,
+.label-ops {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.studio-card,
+.label-ops article,
+.instrument-board div {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.studio-card,
+.label-ops article {
+  padding: 1.2rem;
+}
+
+.studio-card {
+  grid-column: span 1;
+}
+
+.studio-card:first-child {
+  grid-column: span 2;
+}
+
+.studio-card span {
+  color: var(--cyan);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.studio-card p,
+.label-ops p,
+.instrument-board span {
+  color: var(--muted);
+}
+
+.instrument-board {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.instrument-board div {
+  padding: 1rem;
+}
+
+.instrument-board strong,
+.instrument-board span {
+  display: block;
+}
+
+.instrument-board strong {
+  color: var(--text);
+  margin-bottom: 0.35rem;
 }
 
 .afro-thumb {
@@ -1522,8 +1661,20 @@ h3 {
   .product-grid,
   .store-catalog,
   .media-library-list,
-  .admin-stats {
+  .admin-stats,
+  .studio-grid,
+  .label-ops {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .instrument-board,
+  .store-leaderboard {
+    grid-template-columns: 1fr;
+  }
+
+  .studio-card:first-child,
+  .studio-card {
+    grid-column: auto;
   }
 
   .admin-grid,
@@ -1570,8 +1721,24 @@ h3 {
   .store-catalog,
   .media-library-list,
   .admin-stats,
+  .studio-grid,
+  .label-ops,
   .field-row {
     grid-template-columns: 1fr;
+  }
+
+  .catalog-track {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .track-actions {
+    width: 100%;
+  }
+
+  .track-actions .track-link,
+  .track-actions .preview-btn {
+    justify-content: center;
   }
 
   #audio-bar {
