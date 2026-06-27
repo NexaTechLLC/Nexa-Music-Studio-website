@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Subscribe to NEXAStudios™ Music live streaming access." />
+    <title>Live Streaming Checkout | NEXAStudios™ Music</title>
+    <link rel="icon" type="image/png" href="/assets/nexa-mark.png" />
+    <link rel="stylesheet" href="/styles.css?v=15" />
+  </head>
+  <body>
+    <header class="site-header" id="top">
+      <a class="brand" href="/" aria-label="NEXAStudios™ Music home"><img src="/assets/nexa-mark.png" alt="" /><span>NEXAStudios™ Music</span></a>
+      <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><span></span><span></span></button>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="/artists">Artists</a>
+        <a href="/studio">Studio</a>
+        <a href="/store">Music Library</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+        <a href="/auth">Sign In</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="page-hero reveal">
+        <div>
+          <p class="eyebrow">Checkout</p>
+          <h1>Subscribe to live streaming.</h1>
+          <p>Unlock NEXAStudios™ Music live-streaming access, artist sessions, release events, and subscriber media downloads.</p>
+        </div>
+        <img src="/assets/nexa-mark.png" alt="NEXAStudios™ Music mark" />
+      </section>
+
+      <section class="section page-section checkout-section reveal">
+        <article class="checkout-card">
+          <p class="eyebrow">Live Streaming Pass</p>
+          <h2>$9.99 / month</h2>
+          <ul>
+            <li>Live artist streaming access</li>
+            <li>Subscriber-only media downloads</li>
+            <li>Behind-the-scenes and release events</li>
+            <li>BLACK INDIGO and DR. AMAKA ALOY programming</li>
+          </ul>
+          <form id="checkout-form" class="media-form">
+            <input type="hidden" name="plan" value="live-streaming-monthly" />
+            <input type="hidden" name="artistId" id="checkout-artist-id" value="all-artists" />
+            <div class="field">
+              <label for="checkout-card-name">Name on card</label>
+              <input id="checkout-card-name" name="cardName" type="text" placeholder="NEXAStudios Listener" required />
+            </div>
+            <div class="field-row">
+              <div class="field"><label for="checkout-card-number">Card number</label><input id="checkout-card-number" name="cardNumber" type="text" inputmode="numeric" placeholder="4242 4242 4242 4242" required /></div>
+              <div class="field"><label for="checkout-expiry">Expiry</label><input id="checkout-expiry" name="expiry" type="text" placeholder="MM/YY" required /></div>
+            </div>
+            <div class="field"><label for="checkout-cvc">CVC</label><input id="checkout-cvc" name="cvc" type="text" inputmode="numeric" placeholder="123" required /></div>
+            <button class="button primary" type="submit">Pay and subscribe</button>
+            <p class="form-status" aria-live="polite"></p>
+          </form>
+          <p class="checkout-note">Demo checkout activates access in your account. Stripe can be connected later for real card processing.</p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="site-footer"><img src="/assets/nexa-mark.png" alt="" /><p>&copy; <span id="year"></span> NEXAStudios™ Music. All rights reserved.</p><a href="/contact">Contact</a></footer>
+    <script src="/script.js?v=15"></script>
+  </body>
+</html>

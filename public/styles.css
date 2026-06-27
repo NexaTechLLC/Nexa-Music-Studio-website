@@ -1268,6 +1268,47 @@ h3 {
   font-weight: 900;
 }
 
+.download-btn {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.7rem 1rem;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.download-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.checkout-section {
+  display: grid;
+  place-items: start center;
+}
+
+.checkout-card {
+  width: min(720px, 100%);
+  padding: 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.checkout-card ul {
+  margin: 1rem 0 1.25rem;
+  padding-left: 1.2rem;
+  color: var(--muted);
+}
+
+.checkout-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
 .buy-btn {
   min-height: 38px;
   padding: 0.5rem 1rem;
@@ -1472,6 +1513,61 @@ h3 {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 1rem;
+}
+
+.admin-layout {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.admin-sidebar {
+  position: sticky;
+  top: 92px;
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.admin-tab {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.8rem 0.9rem;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 900;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-tab.active,
+.admin-tab:hover {
+  border-color: rgba(17, 200, 255, 0.35);
+  background: rgba(17, 200, 255, 0.08);
+  color: var(--text);
+}
+
+.admin-workspace {
+  min-width: 0;
+}
+
+.admin-panel-section {
+  display: none;
+}
+
+.admin-panel-section.active {
+  display: block;
+}
+
+.admin-panel-section.admin-grid.active,
+.admin-panel-section.admin-tables.active {
+  display: grid;
 }
 
 .admin-account-bar {
@@ -1738,6 +1834,14 @@ h3 {
   .admin-grid,
   .admin-tables {
     grid-template-columns: 1fr;
+  }
+
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    position: static;
   }
 
   .admin-table-card.wide {

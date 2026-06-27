@@ -331,6 +331,22 @@ function escapeHtml(value) {
   })[char]);
 }
 
+const genreOptions = [
+  "Afrosounds",
+  "Hip-Hop/Rap",
+  "Latin",
+  "Jazz/Blues",
+  "Caribbean",
+  "Pop",
+  "R&B",
+  "Gospel",
+  "Electronic",
+  "Rock",
+  "Punjabi",
+  "Country",
+  "Instrumental"
+];
+
 function mediaMarkup(item) {
   const mediaUrl = escapeHtml(item.embedUrl || item.url);
   const title = escapeHtml(item.title);
@@ -403,7 +419,12 @@ function isPublicMedia(item) {
 }
 
 function publicTrackButton(item, label = "Listen") {
-  return `<button class="track-link listen-btn" data-audio="${escapeHtml(item.url)}" data-snippet="${item.isSnippet ? "true" : "false"}" type="button">${escapeHtml(label)}</button>`;
+  return `<button class="track-link listen-btn" data-track-id="${escapeHtml(item.id)}" data-title="${escapeHtml(item.title)}" data-audio="${escapeHtml(item.url)}" data-snippet="${item.isSnippet ? "true" : "false"}" type="button">${escapeHtml(label)}</button>`;
+}
+
+function publicDownloadButton(item) {
+  if (item.provider === "youtube") return "";
+  return `<button class="download-btn" data-download="${escapeHtml(item.downloadUrl || `/api/download?trackId=${encodeURIComponent(item.id)}`)}" type="button">Download</button>`;
 }
 
 function previewUrl(item) {
@@ -441,6 +462,7 @@ function publicCatalogItem(item, trackNumber) {
       <div class="track-actions">
         ${publicPreviewButton(item)}
         ${publicTrackButton(item, "Full Track")}
+        ${publicDownloadButton(item)}
       </div>
     </article>
   `;
@@ -458,6 +480,7 @@ function storeCatalogCard(item) {
           <span class="product-price">${Number(item.streams || 0).toLocaleString()}</span>
           ${publicPreviewButton(item)}
           ${publicTrackButton(item, "Full Track")}
+          ${publicDownloadButton(item)}
         </div>
       </div>
     </article>
@@ -501,6 +524,17 @@ function optionMarkup(items, labelKey = "name") {
     '<option value="">Select</option>',
     ...items.map((item) => `<option value="${escapeHtml(item.id)}">${escapeHtml(item[labelKey])}</option>`)
   ].join("");
+}
+
+function initGenreSelects() {
+  document.querySelectorAll("[data-genre-select]").forEach((select) => {
+    const current = select.value;
+    select.innerHTML = [
+      '<option value="">Select genre</option>',
+      ...genreOptions.map((genre) => `<option value="${escapeHtml(genre)}">${escapeHtml(genre)}</option>`)
+    ].join("");
+    select.value = current;
+  });
 }
 
 function tableMarkup(headers, rows) {
@@ -641,6 +675,84 @@ function initLogoutButtons() {
       window.location.href = "/auth";
     });
   });
+}
+
+function initAdminTabs() {
+  const tabs = document.querySelectorAll("[data-admin-tab]");
+  const panels = document.querySelectorAll("[data-admin-panel]");
+  if (!tabs.length || !panels.length) return;
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const target = tab.dataset.adminTab;
+      tabs.forEach((item) => item.classList.toggle("active", item === tab));
+      panels.forEach((panel) => panel.classList.toggle("active", panel.dataset.adminPanel === target));
+    });
+  });
+}
+
+async function initCheckoutPage() {
+  const form = document.getElementById("checkout-form");
+  if (!form) return;
+  const params = new URLSearchParams(location.search);
+  const artistId = params.get("artist") || "all-artists";
+  const artistInput = document.getElementById("checkout-artist-id");
+  if (artistInput) artistInput.value = artistId;
+
+  const user = await checkAuth();
+  const status = form.querySelector(".form-status");
+  if (!user) {
+    status.innerHTML = 'Sign in before checkout. <a href="/auth">Go to sign in</a>.';
+    status.className = "form-status err";
+    form.querySelector('button[type="submit"]').disabled = true;
+    return;
+  }
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const btn = form.querySelector('button[type="submit"]');
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Processing";
+    try {
+      const payload = Object.fromEntries(new FormData(form));
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Checkout failed");
+      if (data.token) setSessionToken(data.token, true);
+      status.textContent = "Subscription active. Downloads and live streaming access are unlocked.";
+      status.className = "form-status ok";
+      setTimeout(() => { window.location.href = "/store?success=1"; }, 900);
+    } catch (error) {
+      status.textContent = error.message || "Checkout failed.";
+      status.className = "form-status err";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  });
+}
+
+function updateAccountLinks(user) {
+  document.querySelectorAll('a[href="/auth"]').forEach((link) => {
+    link.hidden = Boolean(user);
+  });
+  if (user && !document.querySelector(".site-nav [data-logout-generated]")) {
+    document.querySelectorAll(".site-nav").forEach((nav) => {
+      const button = document.createElement("button");
+      button.className = "nav-action";
+      button.type = "button";
+      button.dataset.logout = "";
+      button.dataset.logoutGenerated = "true";
+      button.textContent = "Log out";
+      nav.appendChild(button);
+    });
+    initLogoutButtons();
+  }
 }
 
 function initAdminForms() {
@@ -1178,7 +1290,7 @@ function initAudioModal() {
     }
   }
 
-  async function openModal(audioSrc, title, snippetOverride = false) {
+  async function openModal(audioSrc, title, snippetOverride = false, trackId = "") {
     const isSnippet = snippetOverride || audioSrc.includes("-snippet");
     
     if (!isSnippet) {
@@ -1188,6 +1300,14 @@ function initAudioModal() {
         window.location.href = "/auth";
         return;
       }
+    }
+
+    if (trackId) {
+      fetch("/api/stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trackId })
+      }).catch(() => {});
     }
     
     modalPlayer.src = audioSrc;
@@ -1243,8 +1363,25 @@ function initAudioModal() {
     const btn = event.target.closest(".listen-btn");
     if (!btn) return;
     const audioSrc = btn.dataset.audio;
-    const title = btn.textContent || "Now Playing";
-    if (audioSrc) openModal(audioSrc, title, btn.dataset.snippet === "true");
+    const title = btn.dataset.title || btn.textContent || "Now Playing";
+    if (audioSrc) openModal(audioSrc, title, btn.dataset.snippet === "true", btn.dataset.trackId);
+  });
+
+  document.addEventListener("click", async (event) => {
+    const btn = event.target.closest(".download-btn");
+    if (!btn) return;
+    const user = await checkAuth();
+    if (!user) {
+      alert("Please sign in before downloading media files.");
+      window.location.href = "/auth";
+      return;
+    }
+    if (!user.subscription?.liveStreaming) {
+      alert("Subscribe to live streaming to unlock media downloads.");
+      window.location.href = "/checkout";
+      return;
+    }
+    window.location.href = btn.dataset.download;
   });
 
   modalPlayer.addEventListener("error", (e) => {
@@ -1256,6 +1393,7 @@ async function initAdminGate() {
   const isAdminPage = Boolean(document.getElementById("media-upload-form") && document.body.classList.contains("admin-page"));
   const user = await checkAuth();
   updateAdminLinks(user);
+  updateAccountLinks(user);
   updateProfileUi(user);
 
   if (isAdminPage && (!user || user.role !== "admin")) {
@@ -1274,9 +1412,12 @@ initBuyButtons();
 initPurchaseSuccess();
 initMediaUpload();
 initAdminForms();
+initAdminTabs();
+initGenreSelects();
 initProfileSettings();
 initLogoutButtons();
 initAuthForms();
+initCheckoutPage();
 initPasswordReset();
 initReviews();
 initPublicCatalog();
