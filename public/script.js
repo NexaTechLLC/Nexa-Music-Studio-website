@@ -273,7 +273,8 @@ function initStoreFilters() {
       btn.classList.add("active");
       const filter = btn.dataset.filter;
       document.querySelectorAll(".product-card").forEach((card) => {
-        card.hidden = filter !== "all" && card.dataset.region !== filter;
+        const regions = String(card.dataset.region || "").split(/\s+/).filter(Boolean);
+        card.hidden = filter !== "all" && !regions.includes(filter);
       });
     });
   });
@@ -370,12 +371,36 @@ function artistSlug(value) {
     .replace(/^-|-$/g, "");
 }
 
+function categorySlugs(value) {
+  const text = String(value || "").toLowerCase();
+  const slugs = [];
+  if (/afro|afrobeats|afrosounds|amapiano/.test(text)) slugs.push("afrosounds");
+  if (/hip\s*-?\s*hop|hiphop|rap/.test(text)) slugs.push("hip-hop-rap");
+  if (/latin/.test(text)) slugs.push("latin");
+  if (/jazz|blues/.test(text)) slugs.push("jazz-blues");
+  if (/caribbean|dancehall|reggae|soca/.test(text)) slugs.push("caribbean");
+  if (/pop/.test(text)) slugs.push("pop");
+  if (/r&b|rnb|rhythm/.test(text)) slugs.push("r-b");
+  if (/gospel|worship/.test(text)) slugs.push("gospel");
+  if (/electronic|edm|dance/.test(text)) slugs.push("electronic");
+  if (/rock/.test(text)) slugs.push("rock");
+  if (/punjabi/.test(text)) slugs.push("punjabi");
+  if (/country/.test(text)) slugs.push("country");
+  if (/instrumental|score|beat/.test(text)) slugs.push("instrumental");
+  return [...new Set(slugs)].join(" ") || "afrosounds";
+}
+
 function isPublicMedia(item) {
   const title = String(item.title || "").toLowerCase();
   const artist = String(item.artist || "").toLowerCase();
   const isAmakaAkala = title.includes("akala aka m o") && (item.artistId === "dr-amaka-aloy" || artist.includes("amaka"));
-  const isBuiltInOdu = title === "odu mi o";
-  return !isAmakaAkala && !isBuiltInOdu && String(item.releaseStatus || "active").toLowerCase() === "active";
+  const isStaticTrack = (item.artistId === "black-indigo" || artistSlug(item.artist) === "black-indigo") && title === "odu mi o";
+  return !isAmakaAkala && !isStaticTrack && String(item.releaseStatus || "active").toLowerCase() === "active";
+}
+
+function isStaticArtistPageTrack(item) {
+  const title = String(item.title || "").toLowerCase();
+  return (item.artistId === "black-indigo" || artistSlug(item.artist) === "black-indigo") && title === "akala aka m o";
 }
 
 function publicTrackButton(item, label = "Listen") {
@@ -405,16 +430,17 @@ function publicTrackMeta(item) {
 function publicCatalogItem(item, trackNumber) {
   return `
     <article class="catalog-track">
-      <span class="track-number">Track ${trackNumber}</span>
+      <span class="track-number">Track ${trackNumber}:</span>
       ${publicPreviewButton(item)}
-      ${publicTrackButton(item, item.title)}
+      <span class="track-separator" aria-hidden="true">|</span>
+      ${publicTrackButton(item, `Full Track - ${item.title}`)}
     </article>
   `;
 }
 
 function storeCatalogCard(item) {
   return `
-    <article class="product-card" data-region="${escapeHtml(artistSlug(item.genre || item.artist))}">
+    <article class="product-card" data-region="${escapeHtml(categorySlugs(`${item.genre || ""} ${item.artist || ""}`))}">
       <div class="product-thumb afro-thumb"></div>
       <div class="product-info">
         <p class="eyebrow">${escapeHtml(item.artist || "NEXAStudios™ Music")} · ${escapeHtml(item.album || "Release")}</p>
@@ -443,7 +469,9 @@ async function initPublicCatalog() {
     artistCatalogs.forEach((container) => {
       const artistId = container.dataset.publicCatalog;
       const trackOffset = Number(container.dataset.trackOffset || 0);
-      const tracks = media.filter((item) => item.artistId === artistId || artistSlug(item.artist) === artistId);
+      const tracks = media
+        .filter((item) => item.artistId === artistId || artistSlug(item.artist) === artistId)
+        .filter((item) => !isStaticArtistPageTrack(item));
       container.innerHTML = tracks.length
         ? tracks.map((item, index) => publicCatalogItem(item, trackOffset + index + 1)).join("")
         : '<p class="empty-state compact">No public releases uploaded yet.</p>';
@@ -665,12 +693,14 @@ function clearSessionToken() {
 }
 
 async function checkAuth() {
+  if (!getSessionToken()) return null;
   try {
     const res = await fetch("/api/me");
     if (res.ok) {
       const data = await res.json();
-      return data.user;
+      return data.user || null;
     }
+    if (res.status === 401) clearSessionToken();
     return null;
   } catch {
     return null;
@@ -959,13 +989,19 @@ function initReviews() {
   }
 
   async function checkAuth() {
+    if (!getSessionToken()) {
+      reviewForm.hidden = true;
+      authRequired.hidden = false;
+      return;
+    }
     try {
       const res = await fetch("/api/me");
       const data = await res.json();
-      if (data.ok) {
+      if (data.ok && data.user) {
         reviewForm.hidden = false;
         authRequired.hidden = true;
       } else {
+        if (res.status === 401) clearSessionToken();
         reviewForm.hidden = true;
         authRequired.hidden = false;
       }

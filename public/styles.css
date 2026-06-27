@@ -490,10 +490,17 @@ h3 {
 }
 
 .track-actions {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.track-separator {
+  color: var(--muted);
+  font-weight: 900;
 }
 
 .track-actions .preview-btn {
@@ -1013,6 +1020,7 @@ h3 {
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 2rem;
+  max-width: 980px;
 }
 
 .filter-btn {
