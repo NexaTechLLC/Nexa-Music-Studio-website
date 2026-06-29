@@ -411,6 +411,10 @@ function categorySlugs(value) {
   return [...new Set(slugs)].join(" ") || "afrosounds";
 }
 
+function genreCategoryValue(item) {
+  return categorySlugs(item.genre || item.album || item.artist || "");
+}
+
 function isPublicMedia(item) {
   const title = String(item.title || "").toLowerCase();
   const artist = String(item.artist || "").toLowerCase();
@@ -448,15 +452,16 @@ function publicTrackMeta(item) {
   return context && context.toLowerCase() !== kind.toLowerCase() ? `${context} · ${kind}` : kind;
 }
 
-function publicCatalogItem(item, trackNumber) {
+function publicCatalogItem(item, trackNumber, variant = "full") {
+  const compact = variant === "compact";
   return `
     <article class="catalog-track">
       <div class="track-rank">Track ${trackNumber}</div>
       <div class="track-main">
         <strong>${escapeHtml(item.title)}</strong>
-        <span>${escapeHtml(item.artist || "NEXAStudios™ Music")} · ${escapeHtml(item.album || "Single")} · ${escapeHtml(item.genre || "Catalog")}</span>
+        ${compact ? "" : `<span>${escapeHtml(item.artist || "NEXAStudios™ Music")} · ${escapeHtml(item.album || "Single")} · ${escapeHtml(item.genre || "Catalog")}</span>`}
       </div>
-      <div class="track-metrics">
+      <div class="track-metrics"${compact ? " hidden" : ""}>
         <span>${Number(item.streams || 0).toLocaleString()} streams</span>
       </div>
       <div class="track-actions">
@@ -470,7 +475,7 @@ function publicCatalogItem(item, trackNumber) {
 
 function storeCatalogCard(item) {
   return `
-    <article class="product-card" data-region="${escapeHtml(categorySlugs(`${item.genre || ""} ${item.artist || ""}`))}">
+    <article class="product-card" data-region="${escapeHtml(genreCategoryValue(item))}">
       <div class="product-thumb afro-thumb"></div>
       <div class="product-info">
         <p class="eyebrow">Track ${escapeHtml(item.trackNumber || "-")} · ${escapeHtml(item.artist || "NEXAStudios™ Music")}</p>
@@ -501,10 +506,11 @@ async function initPublicCatalog() {
     artistCatalogs.forEach((container) => {
       const artistId = container.dataset.publicCatalog;
       const trackOffset = Number(container.dataset.trackOffset || 0);
+      const variant = container.dataset.catalogVariant || "full";
       const tracks = media
         .filter((item) => item.artistId === artistId || artistSlug(item.artist) === artistId);
       container.innerHTML = tracks.length
-        ? tracks.map((item, index) => publicCatalogItem(item, trackOffset + index + 1)).join("")
+        ? tracks.map((item, index) => publicCatalogItem(item, trackOffset + index + 1, variant)).join("")
         : '<p class="empty-state compact">No public releases uploaded yet.</p>';
     });
 
@@ -741,8 +747,9 @@ function updateAccountLinks(user) {
   document.querySelectorAll('a[href="/auth"]').forEach((link) => {
     link.hidden = Boolean(user);
   });
-  if (user && !document.querySelector(".site-nav [data-logout-generated]")) {
+  if (user) {
     document.querySelectorAll(".site-nav").forEach((nav) => {
+      if (nav.querySelector("[data-logout]")) return;
       const button = document.createElement("button");
       button.className = "nav-action";
       button.type = "button";

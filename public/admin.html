@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Admin dashboard for NEXAStudios™ Music catalog, artists, albums, streams, and media uploads." />
     <title>Admin Dashboard | NEXAStudios™ Music</title>
-    <link rel="stylesheet" href="/styles.css?v=15" />
+    <link rel="stylesheet" href="/styles.css?v=16" />
   </head>
   <body class="admin-page">
     <header class="site-header" id="top">
@@ -47,7 +47,6 @@
             <strong id="admin-profile-name">Admin</strong>
             <small id="admin-profile-email">-</small>
           </div>
-          <button class="button secondary" type="button" data-logout>Log out</button>
         </div>
         <div class="admin-stats" id="admin-stats">
           <article><span>Artists</span><strong>-</strong></article>
@@ -57,9 +56,6 @@
           <article><span>Uploads</span><strong>-</strong></article>
           <article><span>Users</span><strong>-</strong></article>
         </div>
-      </section>
-
-      <section class="admin-panel-section admin-grid" data-admin-panel="setup">
         <article class="admin-panel">
           <p class="eyebrow">Profile Settings</p>
           <h2>Manage profile.</h2>
@@ -76,6 +72,9 @@
             <p class="form-status" aria-live="polite"></p>
           </form>
         </article>
+      </section>
+
+      <section class="admin-panel-section admin-grid" data-admin-panel="setup">
         <article class="admin-panel">
           <p class="eyebrow">Artist Setup</p>
           <h2>Add artist.</h2>
@@ -121,36 +120,38 @@
       </section>
 
       <section class="admin-panel-section media-vault" data-admin-panel="media">
-        <div class="section-heading">
-          <p class="eyebrow">Backend Media Vault</p>
-          <h2>Upload catalog media.</h2>
-          <p>Manage music library previews, full tracks, music videos, behind-the-scenes clips, and snippets. Files are stored under `storage/media` and listed through `/api/media`.</p>
-        </div>
-        <form class="media-form" id="media-upload-form">
-          <div class="field-row">
-            <div class="field"><label for="media-title">Title</label><input id="media-title" name="title" type="text" required /></div>
-            <div class="field"><label for="media-artist">Artist</label><select id="media-artist" name="artistId" data-artist-select required></select></div>
+        <article class="admin-panel media-upload-card">
+          <div class="section-heading">
+            <p class="eyebrow">Backend Media Vault</p>
+            <h2>Upload catalog media.</h2>
+            <p>Manage music library previews, full tracks, music videos, behind-the-scenes clips, and snippets. Files are stored under `storage/media` and listed through `/api/media`.</p>
           </div>
-          <div class="field-row">
-            <div class="field"><label for="media-album">Album / release</label><select id="media-album" name="albumId" data-album-select></select></div>
-            <div class="field"><label for="media-genre">Genre</label><select id="media-genre" name="genre" data-genre-select></select></div>
-          </div>
-          <div class="field-row">
-            <div class="field">
-              <label for="media-kind">Media kind</label>
-              <select id="media-kind" name="kind"><option>snippet</option><option>full track</option><option>music video</option><option>behind the scenes</option><option>album trailer</option></select>
+          <form class="media-form" id="media-upload-form">
+            <div class="field-row">
+              <div class="field"><label for="media-title">Title</label><input id="media-title" name="title" type="text" required /></div>
+              <div class="field"><label for="media-artist">Artist</label><select id="media-artist" name="artistId" data-artist-select required></select></div>
             </div>
-            <div class="field"><label for="media-track-number">Track number</label><input id="media-track-number" name="trackNumber" type="number" min="1" /></div>
-          </div>
-          <div class="field-row">
-            <div class="field"><label for="media-status">Release status</label><select id="media-status" name="releaseStatus"><option>draft</option><option>active</option><option>archived</option></select></div>
-            <div class="field"><label for="media-file">Audio or video file</label><input id="media-file" name="file" type="file" accept="audio/*,video/*" /></div>
-          </div>
-          <div class="field"><label for="media-youtube">YouTube video URL</label><input id="media-youtube" name="youtubeUrl" type="url" placeholder="https://www.youtube.com/watch?v=..." /></div>
-          <label class="inline-check"><input name="isSnippet" type="checkbox" /> Mark as public snippet</label>
-          <button class="button primary" type="submit">Upload media</button>
-          <p class="form-status" aria-live="polite"></p>
-        </form>
+            <div class="field-row">
+              <div class="field"><label for="media-album">Album / release</label><select id="media-album" name="albumId" data-album-select></select></div>
+              <div class="field"><label for="media-genre">Genre</label><select id="media-genre" name="genre" data-genre-select></select></div>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="media-kind">Media kind</label>
+                <select id="media-kind" name="kind"><option>snippet</option><option>full track</option><option>music video</option><option>behind the scenes</option><option>album trailer</option></select>
+              </div>
+              <div class="field"><label for="media-track-number">Track number</label><input id="media-track-number" name="trackNumber" type="number" min="1" /></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label for="media-status">Release status</label><select id="media-status" name="releaseStatus"><option>draft</option><option>active</option><option>archived</option></select></div>
+              <div class="field"><label for="media-file">Audio or video file</label><input id="media-file" name="file" type="file" accept="audio/*,video/*" /></div>
+            </div>
+            <div class="field"><label for="media-youtube">YouTube video URL</label><input id="media-youtube" name="youtubeUrl" type="url" placeholder="https://www.youtube.com/watch?v=..." /></div>
+            <label class="inline-check"><input name="isSnippet" type="checkbox" /> Mark as public snippet</label>
+            <button class="button primary" type="submit">Upload media</button>
+            <p class="form-status" aria-live="polite"></p>
+          </form>
+        </article>
       </section>
 
       <section class="admin-panel-section admin-tables" data-admin-panel="analytics">
@@ -176,6 +177,6 @@
     </main>
 
     <footer class="site-footer"><img src="/assets/nexa-mark.png" alt="" /><p>&copy; <span id="year"></span> NEXAStudios™ Music. All rights reserved.</p><a href="/store">Music Library</a></footer>
-    <script src="/script.js?v=15"></script>
+    <script src="/script.js?v=16"></script>
   </body>
 </html>
