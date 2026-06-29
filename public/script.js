@@ -266,21 +266,26 @@ function initContactForms() {
 function initStoreFilters() {
   const btns = document.querySelectorAll(".filter-btn");
   if (!btns.length) return;
-  let activeFilter = document.querySelector(".filter-btn.active")?.dataset.filter || "all";
+  window.activeStoreFilter = document.querySelector(".filter-btn.active")?.dataset.filter || "all";
 
-  window.applyStoreFilter = () => {
-    document.querySelectorAll(".product-card").forEach((card) => {
-      const regions = String(card.dataset.region || "").split(/\s+/).filter(Boolean);
-      card.hidden = activeFilter !== "all" && !regions.includes(activeFilter);
-    });
+  window.renderStoreCatalog = () => {
+    const storeCatalog = document.querySelector("[data-store-catalog]");
+    if (!storeCatalog) return;
+    const media = window.storeCatalogMedia || [];
+    const filtered = window.activeStoreFilter === "all"
+      ? media
+      : media.filter((item) => genreCategoryValue(item).split(/\s+/).includes(window.activeStoreFilter));
+    storeCatalog.innerHTML = filtered.length
+      ? filtered.map(storeCatalogCard).join("")
+      : '<p class="empty-state">No tracks found for this genre yet.</p>';
   };
 
   btns.forEach((btn) => {
     btn.addEventListener("click", () => {
       btns.forEach((item) => item.classList.remove("active"));
       btn.classList.add("active");
-      activeFilter = btn.dataset.filter;
-      window.applyStoreFilter();
+      window.activeStoreFilter = btn.dataset.filter;
+      window.renderStoreCatalog();
     });
   });
 }
@@ -515,8 +520,8 @@ async function initPublicCatalog() {
     });
 
     if (storeCatalog) {
-      storeCatalog.innerHTML = media.length ? media.map(storeCatalogCard).join("") : "";
-      window.applyStoreFilter?.();
+      window.storeCatalogMedia = media;
+      window.renderStoreCatalog?.();
     }
   } catch {
     artistCatalogs.forEach((container) => {
