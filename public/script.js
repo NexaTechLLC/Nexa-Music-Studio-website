@@ -336,6 +336,16 @@ function escapeHtml(value) {
   })[char]);
 }
 
+async function readApiJson(res) {
+  const text = await res.text();
+  try {
+    return text ? JSON.parse(text) : {};
+  } catch {
+    const message = text.trim() || `Request failed with status ${res.status}`;
+    throw new Error(message.slice(0, 180));
+  }
+}
+
 const genreOptions = [
   "Afrosounds",
   "Hip-Hop/Rap",
@@ -837,27 +847,42 @@ function initMediaUpload() {
     btn.textContent = "Uploading";
 
     try {
-      const dataUrl = file ? await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      }) : "";
       const formData = Object.fromEntries(new FormData(form));
       const artistSelect = form.querySelector('[name="artistId"]');
       const albumSelect = form.querySelector('[name="albumId"]');
+      const metadata = {
+        ...formData,
+        file: undefined,
+        artist: artistSelect?.selectedOptions?.[0]?.textContent || "",
+        album: albumSelect?.selectedOptions?.[0]?.textContent || ""
+      };
+
+      if (file) {
+        btn.textContent = "Uploading file";
+        status.textContent = "Uploading file to media storage...";
+        status.className = "form-status";
+        const { upload } = await import("https://esm.sh/@vercel/blob@2.5.0/client");
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || "media-upload";
+        const blob = await upload(`nexa-media/${Date.now()}-${safeName}`, file, {
+          access: "public",
+          handleUploadUrl: "/api/blob-upload",
+          contentType: file.type || "application/octet-stream",
+          multipart: file.size > 4 * 1024 * 1024
+        });
+        metadata.blobUrl = blob.url;
+        metadata.fileName = file.name;
+        metadata.originalName = file.name;
+        metadata.mimeType = file.type || blob.contentType || "";
+        metadata.size = file.size;
+      }
+
+      btn.textContent = "Saving";
       const res = await fetch("/api/media", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          artist: artistSelect?.selectedOptions?.[0]?.textContent || "",
-          album: albumSelect?.selectedOptions?.[0]?.textContent || "",
-          fileName: file?.name || "",
-          dataUrl
-        })
+        body: JSON.stringify(metadata)
       });
-      const data = await res.json();
+      const data = await readApiJson(res);
       if (!res.ok) throw new Error(data.error || "Upload failed");
       status.textContent = "Uploaded to the media library.";
       status.className = "form-status ok";
