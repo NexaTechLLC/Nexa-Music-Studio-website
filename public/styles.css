@@ -484,6 +484,11 @@ h3 {
   border-top: 1px solid var(--line);
 }
 
+.homepage-catalog {
+  margin-top: 0;
+  grid-template-columns: 1fr;
+}
+
 .catalog-track {
   display: grid;
   grid-template-columns: minmax(72px, auto) 1fr auto auto;

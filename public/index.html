@@ -10,7 +10,7 @@
     <title>NEXAStudios™ Music | Global AI Music House</title>
     <link rel="icon" type="image/png" href="/assets/nexa-mark.png" />
     <link rel="preload" href="/assets/nexa-logo-v2.png" as="image" />
-    <link rel="stylesheet" href="/styles.css?v=18" />
+    <link rel="stylesheet" href="/styles.css?v=19" />
   </head>
   <body>
     <header class="site-header" id="top">
@@ -111,9 +111,18 @@
             <div class="artist-stream-actions">
               <a class="button primary" href="/checkout?artist=dr-amaka-aloy">Subscribe to Live Streaming</a>
             </div>
+            <div class="artist-catalog" data-public-catalog="dr-amaka-aloy" data-catalog-variant="compact"></div>
           </article>
         </div>
         <a class="section-link" href="/artists">View artist roster</a>
+      </section>
+
+      <section class="section reveal" aria-labelledby="latest-releases-title">
+        <div class="section-heading">
+          <p class="eyebrow">Latest releases</p>
+          <h2 id="latest-releases-title">Uploaded media from the NEXAStudios™ Music catalog.</h2>
+        </div>
+        <div class="artist-catalog homepage-catalog" data-home-catalog data-catalog-variant="compact"></div>
       </section>
 
       <section class="split-section reveal" aria-labelledby="studio-title">
@@ -271,6 +280,6 @@
         <audio id="audio-modal-player" preload="metadata"></audio>
       </div>
     </div>
-    <script src="/script.js?v=18"></script>
+    <script src="/script.js?v=19"></script>
   </body>
 </html>

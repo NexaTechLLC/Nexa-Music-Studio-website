@@ -509,8 +509,9 @@ function storeCatalogCard(item) {
 
 async function initPublicCatalog() {
   const artistCatalogs = document.querySelectorAll("[data-public-catalog]");
+  const homeCatalog = document.querySelector("[data-home-catalog]");
   const storeCatalog = document.querySelector("[data-store-catalog]");
-  if (!artistCatalogs.length && !storeCatalog) return;
+  if (!artistCatalogs.length && !homeCatalog && !storeCatalog) return;
 
   try {
     const res = await fetch("/api/media");
@@ -529,6 +530,13 @@ async function initPublicCatalog() {
         : '<p class="empty-state compact">No public releases uploaded yet.</p>';
     });
 
+    if (homeCatalog) {
+      const variant = homeCatalog.dataset.catalogVariant || "full";
+      homeCatalog.innerHTML = media.length
+        ? media.map((item, index) => publicCatalogItem(item, index + 1, variant)).join("")
+        : '<p class="empty-state compact">No public releases uploaded yet.</p>';
+    }
+
     if (storeCatalog) {
       window.storeCatalogMedia = media;
       window.renderStoreCatalog?.();
@@ -537,6 +545,9 @@ async function initPublicCatalog() {
     artistCatalogs.forEach((container) => {
       container.innerHTML = '<p class="empty-state compact">Catalog uploads could not be loaded.</p>';
     });
+    if (homeCatalog) {
+      homeCatalog.innerHTML = '<p class="empty-state compact">Catalog uploads could not be loaded.</p>';
+    }
   }
 }
 
