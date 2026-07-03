@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Explore NEXAStudios™ Music virtual artist personas and regional sound worlds." />
-    <title>Artists | NEXAStudios™ Music</title>
+    <meta name="description" content="DR. AMAKA ALOY artist page for NEXAStudios™ Music." />
+    <title>DR. AMAKA ALOY | NEXAStudios™ Music</title>
     <link rel="icon" type="image/png" href="/assets/nexa-mark.png" />
     <link rel="stylesheet" href="/styles.css?v=20" />
   </head>
@@ -28,47 +28,61 @@
     </header>
 
     <main>
-      <section class="page-hero reveal">
+      <section class="page-hero artist-profile-hero reveal">
         <div>
-          <p class="eyebrow">Our Artists</p>
-          <h1>BLACK INDIGO and DR. AMAKA ALOY.</h1>
-          <p>NEXAStudios™ Music represents focused artist brands across Afrobeats, hiphop, and gospel music.</p>
+          <p class="eyebrow">Contemporary Gospel / Worship</p>
+          <h1>DR. AMAKA ALOY</h1>
+          <p>"A Voice of Worship. A Heart for God. A Life of Purpose." ✨🙏🏾🎵</p>
+          <div class="artist-stream-actions">
+            <a class="button primary" href="/checkout?artist=dr-amaka-aloy">Subscribe to Live Streaming</a>
+            <a class="button secondary" href="/artists">Back to artists</a>
+          </div>
         </div>
-        <img src="/assets/nexa-mark.png" alt="NEXAStudios™ Music mark" />
+        <img src="/assets/Dr. Amaka Aloy - Profile Picture_ WHITE SUIT.png" alt="DR. AMAKA ALOY" />
       </section>
 
       <section class="section page-section reveal">
-        <div class="artist-grid detailed-grid reveal-group">
-          <article class="artist-card" data-audio="/audio/1782309923941-7aff0f41-odu-mi-o-1-male-snippet.mp3">
-            <div class="artist-meta"><span class="artist-num">01</span><span class="artist-region">Afrobeats / Amapiano / Afro-Fusion</span></div>
-            <a class="artist-image artist-image-link" href="/artists/black-indigo" aria-label="Open BLACK INDIGO artist page">
-              <img src="/assets/Black Indigo__Profile Picture.png" alt="BLACK INDIGO" />
-            </a>
-            <h3>BLACK INDIGO</h3>
-            <p class="artist-tagline">"Born of Africa. Destined for the World." 🌍👑🎵</p>
-            <p class="artist-genre">The Indigo King • The Voice of African Destiny</p>
-            <p class="artist-description">Afrobeats, Amapiano, and Afro-Fusion built around ambition, resilience, cultural pride, faith, excellence, and global influence.</p>
-            <a class="button primary" href="/artists/black-indigo">View artist page</a>
+        <div class="artist-profile-grid">
+          <article class="artist-card">
+            <p class="eyebrow">Artist identity</p>
+            <h2>The Queen of God's Grace • African Gospel Queen</h2>
+            <p class="artist-description">Amaka Aloy™ is a captivating African Gospel recording artist, worship leader, songwriter, and inspirational voice whose music is dedicated entirely to glorifying God and advancing the Kingdom of Heaven through praise, worship, and faith-filled storytelling. Blessed with extraordinary beauty, grace, and charisma, Amaka embodies the perfect fusion of spiritual depth, timeless elegance, and modern African excellence.</p>
+            <div class="artist-keywords">
+              <span>Gospel Artist</span>
+              <span>Worship Leader</span>
+              <span>Woman of Faith</span>
+              <span>Kingdom Ambassador</span>
+              <span>Spirit-Filled Musician</span>
+              <span>Inspirational Songwriter</span>
+              <span>Elegant Christian Influencer</span>
+              <span>Faith-Based Storyteller</span>
+              <span>Grace & Excellence</span>
+              <span>Purpose-Driven Artist</span>
+            </div>
           </article>
           <article class="artist-card">
-            <div class="artist-meta"><span class="artist-num">02</span><span class="artist-region">Contemporary Gospel / Worship</span></div>
-            <a class="artist-image artist-image-link" href="/artists/dr-amaka-aloy" aria-label="Open DR. AMAKA ALOY artist page">
-              <img src="/assets/Dr. Amaka Aloy - Profile Picture_ WHITE SUIT.png" alt="DR. AMAKA ALOY" />
-            </a>
-            <h3>DR. AMAKA ALOY</h3>
-            <p class="artist-tagline">"A Voice of Worship. A Heart for God. A Life of Purpose." ✨🙏🏾🎵</p>
-            <p class="artist-genre">The Queen of God's Grace • African Gospel Queen</p>
-            <p class="artist-description">African Gospel music dedicated to worship, praise, faith-filled storytelling, and Kingdom purpose.</p>
-            <a class="button primary" href="/artists/dr-amaka-aloy">View artist page</a>
+            <p class="eyebrow">Mission</p>
+            <h2>Worship, praise, and Gospel-centered purpose.</h2>
+            <div class="artist-mission">
+              <strong>Artistic Mission:</strong> To use her God-given voice, talents, and platform to glorify Jesus Christ, inspire hearts, transform lives, spread the Gospel, and remind the world that with God, all things are possible.
+            </div>
           </article>
         </div>
+      </section>
+
+      <section class="section reveal" aria-labelledby="amaka-catalog-title">
+        <div class="section-heading">
+          <p class="eyebrow">Catalog</p>
+          <h2 id="amaka-catalog-title">DR. AMAKA ALOY releases.</h2>
+        </div>
+        <div class="artist-catalog homepage-catalog" data-public-catalog="dr-amaka-aloy" data-catalog-variant="compact"></div>
       </section>
     </main>
 
     <footer class="site-footer">
       <img src="/assets/nexa-mark.png" alt="" />
       <p>&copy; <span id="year"></span> NEXAStudios™ Music. All rights reserved.</p>
-      <a href="https://www.youtube.com/@NEXAStudiosTMMusic" target="_blank" rel="noopener">YouTube</a>
+      <a href="/artists">Artists</a>
       <a href="/contact">Contact</a>
     </footer>
     <div id="audio-bar" role="status" aria-live="polite">
@@ -82,9 +96,7 @@
         <button class="audio-modal-close" aria-label="Close player">&times;</button>
         <h3 id="audio-modal-title">Now Playing</h3>
         <div class="audio-player-controls">
-          <button class="audio-control-btn" id="audio-play-pause" aria-label="Play/Pause">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg>
-          </button>
+          <button class="audio-control-btn" id="audio-play-pause" aria-label="Play/Pause"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg></button>
           <div class="audio-progress-container">
             <span id="audio-current-time" class="audio-time">0:00</span>
             <input type="range" id="audio-progress-bar" class="audio-progress-bar" value="0" min="0" max="100" step="0.1" aria-label="Seek">
