@@ -12,3 +12,8 @@ export async function POST(request, context) {
   const { path = [] } = await context.params;
   return handleApi(request, path);
 }
+
+export async function DELETE(request, context) {
+  const { path = [] } = await context.params;
+  return handleApi(request, path);
+}

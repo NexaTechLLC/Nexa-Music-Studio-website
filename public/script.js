@@ -367,6 +367,7 @@ function mediaMarkup(item) {
   const title = escapeHtml(item.title);
   const artist = escapeHtml(item.artist || "Unassigned Artist");
   const album = escapeHtml(item.album || "No album");
+  const genre = escapeHtml(item.genre || "No genre");
   const kind = escapeHtml(item.kind);
   const player = item.provider === "youtube"
     ? `<iframe class="youtube-embed" src="${mediaUrl}" title="${title}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>`
@@ -378,7 +379,8 @@ function mediaMarkup(item) {
       ${player}
       <div>
         <h3>${title}</h3>
-        <p>${artist} · ${album} · ${kind} · ${(item.size / 1024 / 1024).toFixed(2)}MB</p>
+        <p>${artist} · ${album} · ${genre} · ${kind} · ${(item.size / 1024 / 1024).toFixed(2)}MB</p>
+        ${item.isUpload ? `<button class="button danger media-delete-btn" type="button" data-media-id="${escapeHtml(item.id)}" data-title="${title}">Delete upload</button>` : ""}
       </div>
     </article>
   `;
@@ -636,10 +638,43 @@ async function loadAdminDashboard() {
 
   const tracksTable = document.getElementById("tracks-table");
   if (tracksTable) {
-    tracksTable.innerHTML = tableMarkup(["Song", "Artist", "Album", "Genre", "Streams"], dashboard.tracks.map((track) => `
-      <tr><td>${escapeHtml(track.title)}</td><td>${escapeHtml(track.artist || "-")}</td><td>${escapeHtml(track.album || "-")}</td><td>${escapeHtml(track.genre || "-")}</td><td>${escapeHtml(track.streams.toLocaleString())}</td></tr>
+    tracksTable.innerHTML = tableMarkup(["Song", "Artist", "Album", "Genre", "Streams", "Actions"], dashboard.tracks.map((track) => `
+      <tr>
+        <td>${escapeHtml(track.title)}</td>
+        <td>${escapeHtml(track.artist || "-")}</td>
+        <td>${escapeHtml(track.album || "-")}</td>
+        <td>${escapeHtml(track.genre || "-")}</td>
+        <td>${escapeHtml(track.streams.toLocaleString())}</td>
+        <td>${track.isUpload ? `<button class="button danger media-delete-btn" type="button" data-media-id="${escapeHtml(track.id)}" data-title="${escapeHtml(track.title)}">Delete</button>` : '<span class="muted-text">Built-in</span>'}</td>
+      </tr>
     `));
   }
+}
+
+function initMediaDeleteActions() {
+  document.addEventListener("click", async (event) => {
+    const btn = event.target.closest(".media-delete-btn");
+    if (!btn) return;
+    const mediaId = btn.dataset.mediaId;
+    const title = btn.dataset.title || "this upload";
+    if (!mediaId) return;
+    if (!confirm(`Delete "${title}" from the uploaded media catalog?`)) return;
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Deleting";
+    try {
+      const res = await fetch(`/api/media?id=${encodeURIComponent(mediaId)}`, { method: "DELETE" });
+      const data = await readApiJson(res);
+      if (!res.ok) throw new Error(data.error || "Delete failed");
+      await loadMediaLibrary();
+      await loadAdminDashboard();
+      await initPublicCatalog();
+    } catch (error) {
+      alert(error.message || "Delete failed.");
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  });
 }
 
 function updateProfileUi(user) {
@@ -1459,6 +1494,7 @@ initStoreFilters();
 initBuyButtons();
 initPurchaseSuccess();
 initMediaUpload();
+initMediaDeleteActions();
 initAdminForms();
 initAdminTabs();
 initGenreSelects();
