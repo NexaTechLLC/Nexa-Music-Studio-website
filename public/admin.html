@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Admin dashboard for NEXAStudios™ Music catalog, artists, albums, streams, and media uploads." />
-    <title>Admin Dashboard | NEXAStudios™ Music</title>
-    <link rel="stylesheet" href="/styles.css?v=21" />
+    <meta name="description" content="Admin dashboard for NEXAMusic™ Studios catalog, artists, albums, streams, and media uploads." />
+    <title>Admin Dashboard | NEXAMusic™ Studios</title>
+    <link rel="stylesheet" href="/styles.css?v=22" />
   </head>
   <body class="admin-page">
     <header class="site-header" id="top">
-      <a class="brand" href="/" aria-label="NEXAStudios™ Music home"><img src="/assets/nexa-mark.png" alt="" /><span>NEXAStudios™ Music</span></a>
+      <a class="brand" href="/" aria-label="NEXAMusic™ Studios home"><img src="/assets/nexa-mark.png" alt="" /><span>NEXAMusic™ Studios</span></a>
       <button class="nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><span></span><span></span></button>
       <nav class="site-nav" aria-label="Primary navigation">
         <a href="/artists">Artists</a>
@@ -27,9 +27,9 @@
         <div>
           <p class="eyebrow">Admin Dashboard</p>
           <h1>Label operations hub.</h1>
-          <p>Manage artists, albums, audio and video uploads, catalog metadata, and streaming performance for NEXAStudios™ Music.</p>
+          <p>Manage artists, albums, audio and video uploads, catalog metadata, and streaming performance for NEXAMusic™ Studios.</p>
         </div>
-        <img src="/assets/nexa-mark.png" alt="NEXAStudios™ Music mark" />
+        <img src="/assets/nexa-mark.png" alt="NEXAMusic™ Studios mark" />
       </section>
 
       <section class="admin-layout section page-section reveal">
@@ -113,6 +113,7 @@
               <div class="field"><label for="album-date">Release date</label><input id="album-date" name="releaseDate" type="date" /></div>
               <div class="field"><label for="album-status">Status</label><select id="album-status" name="status"><option>draft</option><option>active</option><option>archived</option></select></div>
             </div>
+            <div class="field"><label for="album-artwork">Album art image</label><input id="album-artwork" name="artworkFile" type="file" accept="image/*" /></div>
             <button class="button primary" type="submit">Create album</button>
             <p class="form-status" aria-live="polite"></p>
           </form>
@@ -176,7 +177,7 @@
       </section>
     </main>
 
-    <footer class="site-footer"><img src="/assets/nexa-mark.png" alt="" /><p>&copy; <span id="year"></span> NEXAStudios™ Music. All rights reserved.</p><a href="/store">Music Library</a></footer>
-    <script src="/script.js?v=21"></script>
+    <footer class="site-footer"><img src="/assets/nexa-mark.png" alt="" /><p>&copy; <span id="year"></span> NEXAMusic™ Studios. All rights reserved.</p><a href="/store">Music Library</a></footer>
+    <script src="/script.js?v=22"></script>
   </body>
 </html>

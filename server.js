@@ -961,7 +961,7 @@ async function handleCreateReview(request, response) {
 
 async function handleCheckout(request, response) {
   const body = JSON.parse(await collectBody(request, 1024 * 1024) || "{}");
-  const productName = sanitizeText(body.productName, "NEXAStudios™ Music product");
+  const productName = sanitizeText(body.productName, "NEXAMusic™ Studios product");
 
   sendJson(response, 501, {
     ok: false,
@@ -1093,5 +1093,5 @@ const server = http.createServer(async (request, response) => {
 });
 
 server.listen(port, () => {
-  console.log(`NEXAStudios™ Music website running at http://localhost:${port}`);
+  console.log(`NEXAMusic™ Studios website running at http://localhost:${port}`);
 });

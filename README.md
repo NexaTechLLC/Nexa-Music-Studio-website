@@ -1,6 +1,6 @@
-# NEXAStudios™ Music Website
+# NEXAMusic™ Studios Website
 
-A modern Next.js website for NEXAStudios™ Music. The existing HTML/CSS/JS pages are served through Next.js pages, and the admin/media APIs run through App Router API routes.
+A modern Next.js website for NEXAMusic™ Studios. The existing HTML/CSS/JS pages are served through Next.js pages, and the admin/media APIs run through App Router API routes.
 
 ## Run locally
 

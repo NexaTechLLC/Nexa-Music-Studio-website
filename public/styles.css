@@ -503,6 +503,74 @@ h3 {
   grid-template-columns: 1fr;
 }
 
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.album-card {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.24);
+}
+
+.album-art-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: rgba(255, 255, 255, 0.035);
+  cursor: pointer;
+}
+
+.album-art-button img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  transition: transform 220ms ease, filter 220ms ease;
+}
+
+.album-art-button:hover img,
+.album-art-button:focus-visible img {
+  filter: brightness(1.08);
+  transform: scale(1.025);
+}
+
+.album-art-button:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: -2px;
+}
+
+.album-card-body {
+  padding: 1rem;
+}
+
+.album-card-body p:not(.eyebrow) {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.album-date {
+  color: var(--cyan);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.album-track-list {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.album-track-list[hidden] {
+  display: none;
+}
+
 .catalog-track {
   display: grid;
   grid-template-columns: minmax(72px, auto) 1fr auto auto;
@@ -1768,6 +1836,15 @@ h3 {
 .admin-table td {
   color: var(--text);
   font-size: 0.92rem;
+}
+
+.table-artwork {
+  width: 54px;
+  height: 54px;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 @media (prefers-reduced-motion: reduce) {

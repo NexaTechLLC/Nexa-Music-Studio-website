@@ -346,6 +346,23 @@ async function readApiJson(res) {
   }
 }
 
+async function uploadBlobFile(file, folder, status, button) {
+  if (!file) return null;
+  const { upload } = await import("https://esm.sh/@vercel/blob@2.5.0/client");
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || "upload";
+  if (status) {
+    status.textContent = `Uploading ${file.type.startsWith("image/") ? "image" : "file"} to media storage...`;
+    status.className = "form-status";
+  }
+  if (button) button.textContent = "Uploading file";
+  return upload(`${folder}/${Date.now()}-${safeName}`, file, {
+    access: "public",
+    handleUploadUrl: "/api/blob-upload",
+    contentType: file.type || "application/octet-stream",
+    multipart: file.size > 4 * 1024 * 1024
+  });
+}
+
 const genreOptions = [
   "Afrosounds",
   "Hip-Hop/Rap",
@@ -476,7 +493,7 @@ function publicCatalogItem(item, trackNumber, variant = "full") {
       <div class="track-rank">Track ${trackNumber}</div>
       <div class="track-main">
         <strong>${escapeHtml(item.title)}</strong>
-        ${compact ? "" : `<span>${escapeHtml(item.artist || "NEXAStudios™ Music")} · ${escapeHtml(item.album || "Single")} · ${escapeHtml(item.genre || "Catalog")}</span>`}
+        ${compact ? "" : `<span>${escapeHtml(item.artist || "NEXAMusic™ Studios")} · ${escapeHtml(item.album || "Single")} · ${escapeHtml(item.genre || "Catalog")}</span>`}
       </div>
       <div class="track-metrics"${compact ? " hidden" : ""}>
         <span>${Number(item.streams || 0).toLocaleString()} streams</span>
@@ -490,12 +507,38 @@ function publicCatalogItem(item, trackNumber, variant = "full") {
   `;
 }
 
+function albumCard(album, tracks) {
+  const albumTracks = tracks
+    .filter((item) => item.albumId === album.id || item.album === album.title)
+    .filter((item) => !item.isSnippet && String(item.kind || "").toLowerCase() !== "snippet")
+    .sort((a, b) => Number(a.trackNumber || 9999) - Number(b.trackNumber || 9999));
+  const trackList = albumTracks.length
+    ? albumTracks.map((item, index) => publicCatalogItem(item, Number(item.trackNumber || index + 1), "compact")).join("")
+    : '<p class="empty-state compact">No full tracks linked to this album yet.</p>';
+  return `
+    <article class="album-card" data-album-id="${escapeHtml(album.id)}">
+      <button class="album-art-button" type="button" aria-expanded="false">
+        <img src="${escapeHtml(album.artwork || "/assets/nexa-mark.png")}" alt="${escapeHtml(album.title)} album art" />
+      </button>
+      <div class="album-card-body">
+        <p class="eyebrow">${escapeHtml(album.releaseType || "album")}</p>
+        <h3>${escapeHtml(album.title)}</h3>
+        <p>${escapeHtml(album.artist || "NEXAMusic™ Studios")} · ${escapeHtml(album.genre || "Catalog")} · ${albumTracks.length} track${albumTracks.length === 1 ? "" : "s"}</p>
+        ${album.releaseDate ? `<span class="album-date">${escapeHtml(album.releaseDate)}</span>` : ""}
+      </div>
+      <div class="album-track-list" hidden>
+        ${trackList}
+      </div>
+    </article>
+  `;
+}
+
 function storeCatalogCard(item) {
   return `
     <article class="product-card" data-region="${escapeHtml(genreCategoryValue(item))}">
       <div class="product-thumb afro-thumb"></div>
       <div class="product-info">
-        <p class="eyebrow">Track ${escapeHtml(item.trackNumber || "-")} · ${escapeHtml(item.artist || "NEXAStudios™ Music")}</p>
+        <p class="eyebrow">Track ${escapeHtml(item.trackNumber || "-")} · ${escapeHtml(item.artist || "NEXAMusic™ Studios")}</p>
         <h3>${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(item.album || "Single")} · ${escapeHtml(item.genre || publicTrackMeta(item))} · ${Number(item.streams || 0).toLocaleString()} streams</p>
         <div class="product-actions">
@@ -511,15 +554,18 @@ function storeCatalogCard(item) {
 
 async function initPublicCatalog() {
   const artistCatalogs = document.querySelectorAll("[data-public-catalog]");
+  const artistAlbumContainers = document.querySelectorAll("[data-artist-albums]");
   const homeCatalog = document.querySelector("[data-home-catalog]");
   const storeCatalog = document.querySelector("[data-store-catalog]");
-  if (!artistCatalogs.length && !homeCatalog && !storeCatalog) return;
+  if (!artistCatalogs.length && !artistAlbumContainers.length && !homeCatalog && !storeCatalog) return;
 
   try {
-    const res = await fetch("/api/media");
+    const [res, albumsRes] = await Promise.all([fetch("/api/media"), fetch("/api/albums")]);
     if (!res.ok) throw new Error("Media API failed");
     const data = await res.json();
+    const albumsData = albumsRes.ok ? await albumsRes.json() : { albums: [] };
     const media = (data.media || []).filter(isPublicMedia);
+    const albums = albumsData.albums || [];
 
     artistCatalogs.forEach((container) => {
       const artistId = container.dataset.publicCatalog;
@@ -530,6 +576,16 @@ async function initPublicCatalog() {
       container.innerHTML = tracks.length
         ? tracks.map((item, index) => publicCatalogItem(item, trackOffset + index + 1, variant)).join("")
         : '<p class="empty-state compact">No public releases uploaded yet.</p>';
+    });
+
+    artistAlbumContainers.forEach((container) => {
+      const artistId = container.dataset.artistAlbums;
+      const artistAlbums = albums
+        .filter((album) => album.artistId === artistId || artistSlug(album.artist) === artistId)
+        .filter((album) => String(album.status || "active").toLowerCase() === "active" || media.some((item) => item.albumId === album.id));
+      container.innerHTML = artistAlbums.length
+        ? artistAlbums.map((album) => albumCard(album, media)).join("")
+        : '<p class="empty-state compact">No albums published yet.</p>';
     });
 
     if (homeCatalog) {
@@ -547,10 +603,26 @@ async function initPublicCatalog() {
     artistCatalogs.forEach((container) => {
       container.innerHTML = '<p class="empty-state compact">Catalog uploads could not be loaded.</p>';
     });
+    artistAlbumContainers.forEach((container) => {
+      container.innerHTML = '<p class="empty-state compact">Albums could not be loaded.</p>';
+    });
     if (homeCatalog) {
       homeCatalog.innerHTML = '<p class="empty-state compact">Catalog uploads could not be loaded.</p>';
     }
   }
+}
+
+function initAlbumCards() {
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest(".album-art-button");
+    if (!button) return;
+    const card = button.closest(".album-card");
+    const list = card?.querySelector(".album-track-list");
+    if (!list) return;
+    const expanded = !list.hidden;
+    list.hidden = expanded;
+    button.setAttribute("aria-expanded", String(!expanded));
+  });
 }
 
 function optionMarkup(items, labelKey = "name") {
@@ -631,8 +703,15 @@ async function loadAdminDashboard() {
 
   const albumsTable = document.getElementById("albums-table");
   if (albumsTable) {
-    albumsTable.innerHTML = tableMarkup(["Album", "Artist", "Type", "Tracks", "Streams"], dashboard.albums.map((album) => `
-      <tr><td>${escapeHtml(album.title)}</td><td>${escapeHtml(album.artist)}</td><td>${escapeHtml(album.releaseType || "-")}</td><td>${escapeHtml(album.tracks)}</td><td>${escapeHtml(album.streams.toLocaleString())}</td></tr>
+    albumsTable.innerHTML = tableMarkup(["Artwork", "Album", "Artist", "Type", "Tracks", "Streams"], dashboard.albums.map((album) => `
+      <tr>
+        <td><img class="table-artwork" src="${escapeHtml(album.artwork || "/assets/nexa-mark.png")}" alt="" /></td>
+        <td>${escapeHtml(album.title)}</td>
+        <td>${escapeHtml(album.artist)}</td>
+        <td>${escapeHtml(album.releaseType || "-")}</td>
+        <td>${escapeHtml(album.tracks)}</td>
+        <td>${escapeHtml(album.streams.toLocaleString())}</td>
+      </tr>
     `));
   }
 
@@ -834,12 +913,25 @@ function initAdminForms() {
     btn.disabled = true;
     btn.textContent = "Saving";
     try {
+      const payload = Object.fromEntries(new FormData(form));
+      if (form.id === "album-form") {
+        const artworkFile = form.querySelector('[name="artworkFile"]')?.files?.[0];
+        delete payload.artworkFile;
+        if (artworkFile) {
+          const blob = await uploadBlobFile(artworkFile, "nexa-artwork", status, btn);
+          payload.artworkUrl = blob.url;
+          payload.artworkName = artworkFile.name;
+          payload.artworkMimeType = artworkFile.type || blob.contentType || "";
+          payload.artworkSize = artworkFile.size;
+        }
+      }
+      btn.textContent = "Saving";
       const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.fromEntries(new FormData(form)))
+        body: JSON.stringify(payload)
       });
-      const data = await res.json();
+      const data = await readApiJson(res);
       if (!res.ok) throw new Error(data.error || "Save failed");
       status.textContent = successText;
       status.className = "form-status ok";
@@ -904,17 +996,7 @@ function initMediaUpload() {
       };
 
       if (file) {
-        btn.textContent = "Uploading file";
-        status.textContent = "Uploading file to media storage...";
-        status.className = "form-status";
-        const { upload } = await import("https://esm.sh/@vercel/blob@2.5.0/client");
-        const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || "media-upload";
-        const blob = await upload(`nexa-media/${Date.now()}-${safeName}`, file, {
-          access: "public",
-          handleUploadUrl: "/api/blob-upload",
-          contentType: file.type || "application/octet-stream",
-          multipart: file.size > 4 * 1024 * 1024
-        });
+        const blob = await uploadBlobFile(file, "nexa-media", status, btn);
         metadata.blobUrl = blob.url;
         metadata.fileName = file.name;
         metadata.originalName = file.name;
@@ -1505,5 +1587,6 @@ initCheckoutPage();
 initPasswordReset();
 initReviews();
 initPublicCatalog();
+initAlbumCards();
 initAudioModal();
 initAdminGate();
