@@ -453,7 +453,7 @@ function isPublicMedia(item) {
   const title = String(item.title || "").toLowerCase();
   const artist = String(item.artist || "").toLowerCase();
   const isAmakaAkala = title.includes("akala aka m o") && (item.artistId === "dr-amaka-aloy" || artist.includes("amaka"));
-  return !isAmakaAkala && String(item.releaseStatus || "active").toLowerCase() === "active";
+  return !isAmakaAkala && String(item.releaseStatus || "active").toLowerCase() !== "archived";
 }
 
 function publicTrackButton(item, label = "Listen") {
