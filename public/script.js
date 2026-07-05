@@ -978,25 +978,28 @@ function initMediaUpload() {
   const status = form.querySelector(".form-status");
   const fileInput = form.querySelector('input[type="file"]');
   const youtubeInput = form.querySelector('[name="youtubeUrl"]');
+  const driveInput = form.querySelector('[name="googleDriveUrl"]');
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const file = fileInput.files?.[0];
     const youtubeUrl = youtubeInput?.value.trim();
-    if (!file && !youtubeUrl) {
-      status.textContent = "Choose an audio or video file, or paste a YouTube video URL.";
+    const googleDriveUrl = driveInput?.value.trim();
+    const sourceCount = [Boolean(file), Boolean(youtubeUrl), Boolean(googleDriveUrl)].filter(Boolean).length;
+    if (!sourceCount) {
+      status.textContent = "Choose an audio/video file, paste a YouTube URL, or paste a Google Drive file URL.";
       status.className = "form-status err";
       return;
     }
-    if (file && youtubeUrl) {
-      status.textContent = "Use either a file upload or a YouTube video URL, not both.";
+    if (sourceCount > 1) {
+      status.textContent = "Use one source only: file upload, YouTube URL, or Google Drive URL.";
       status.className = "form-status err";
       return;
     }
 
     const btn = form.querySelector('button[type="submit"]');
     btn.disabled = true;
-    btn.textContent = "Uploading";
+    btn.textContent = googleDriveUrl ? "Importing" : "Uploading";
 
     try {
       const formData = Object.fromEntries(new FormData(form));
@@ -1016,6 +1019,11 @@ function initMediaUpload() {
         metadata.originalName = file.name;
         metadata.mimeType = file.type || blob.contentType || "";
         metadata.size = file.size;
+      }
+
+      if (googleDriveUrl) {
+        status.textContent = "Importing Google Drive file into media storage...";
+        status.className = "form-status";
       }
 
       btn.textContent = "Saving";

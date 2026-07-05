@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Admin dashboard for NEXAMusic™ Studios catalog, artists, albums, streams, and media uploads." />
     <title>Admin Dashboard | NEXAMusic™ Studios</title>
-    <link rel="stylesheet" href="/styles.css?v=23" />
+    <link rel="stylesheet" href="/styles.css?v=24" />
   </head>
   <body class="admin-page">
     <header class="site-header" id="top">
@@ -148,6 +148,7 @@
               <div class="field"><label for="media-file">Audio or video file</label><input id="media-file" name="file" type="file" accept="audio/*,video/*" /></div>
             </div>
             <div class="field"><label for="media-youtube">YouTube video URL</label><input id="media-youtube" name="youtubeUrl" type="url" placeholder="https://www.youtube.com/watch?v=..." /></div>
+            <div class="field"><label for="media-drive">Google Drive audio/video URL</label><input id="media-drive" name="googleDriveUrl" type="url" placeholder="https://drive.google.com/file/d/.../view" /></div>
             <label class="inline-check"><input name="isSnippet" type="checkbox" /> Mark as public snippet</label>
             <button class="button primary" type="submit">Upload media</button>
             <p class="form-status" aria-live="polite"></p>
@@ -178,6 +179,6 @@
     </main>
 
     <footer class="site-footer"><img src="/assets/nexa-mark.png" alt="" /><p>&copy; <span id="year"></span> NEXAMusic™ Studios. All rights reserved.</p><a href="/store">Music Library</a></footer>
-    <script src="/script.js?v=23"></script>
+    <script src="/script.js?v=24"></script>
   </body>
 </html>
