@@ -555,9 +555,24 @@ h3 {
 }
 
 .album-date {
+  display: inline-flex;
   color: var(--cyan);
   font-size: 0.78rem;
   font-weight: 900;
+}
+
+.album-status {
+  display: inline-flex;
+  width: fit-content;
+  margin-right: 0.5rem;
+  padding: 0.18rem 0.5rem;
+  border: 1px solid rgba(17, 200, 255, 0.35);
+  border-radius: 999px;
+  color: var(--cyan);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .album-track-list {

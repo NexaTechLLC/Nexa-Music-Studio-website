@@ -524,6 +524,7 @@ function albumCard(album, tracks) {
         <p class="eyebrow">${escapeHtml(album.releaseType || "album")}</p>
         <h3>${escapeHtml(album.title)}</h3>
         <p>${escapeHtml(album.artist || "NEXAMusic™ Studios")} · ${escapeHtml(album.genre || "Catalog")} · ${albumTracks.length} track${albumTracks.length === 1 ? "" : "s"}</p>
+        ${album.status ? `<span class="album-status">${escapeHtml(album.status)}</span>` : ""}
         ${album.releaseDate ? `<span class="album-date">${escapeHtml(album.releaseDate)}</span>` : ""}
       </div>
       <div class="album-track-list" hidden>
@@ -555,9 +556,10 @@ function storeCatalogCard(item) {
 async function initPublicCatalog() {
   const artistCatalogs = document.querySelectorAll("[data-public-catalog]");
   const artistAlbumContainers = document.querySelectorAll("[data-artist-albums]");
+  const allAlbumContainers = document.querySelectorAll("[data-album-library]");
   const homeCatalog = document.querySelector("[data-home-catalog]");
   const storeCatalog = document.querySelector("[data-store-catalog]");
-  if (!artistCatalogs.length && !artistAlbumContainers.length && !homeCatalog && !storeCatalog) return;
+  if (!artistCatalogs.length && !artistAlbumContainers.length && !allAlbumContainers.length && !homeCatalog && !storeCatalog) return;
 
   try {
     const [res, albumsRes] = await Promise.all([fetch("/api/media"), fetch("/api/albums")]);
@@ -588,6 +590,15 @@ async function initPublicCatalog() {
         : '<p class="empty-state compact">No albums published yet.</p>';
     });
 
+    allAlbumContainers.forEach((container) => {
+      const visibleAlbums = albums
+        .filter((album) => String(album.status || "active").toLowerCase() !== "archived")
+        .sort((a, b) => new Date(b.createdAt || b.releaseDate || 0) - new Date(a.createdAt || a.releaseDate || 0));
+      container.innerHTML = visibleAlbums.length
+        ? visibleAlbums.map((album) => albumCard(album, media)).join("")
+        : '<p class="empty-state compact">No albums have been created yet.</p>';
+    });
+
     if (homeCatalog) {
       const variant = homeCatalog.dataset.catalogVariant || "full";
       homeCatalog.innerHTML = media.length
@@ -604,6 +615,9 @@ async function initPublicCatalog() {
       container.innerHTML = '<p class="empty-state compact">Catalog uploads could not be loaded.</p>';
     });
     artistAlbumContainers.forEach((container) => {
+      container.innerHTML = '<p class="empty-state compact">Albums could not be loaded.</p>';
+    });
+    allAlbumContainers.forEach((container) => {
       container.innerHTML = '<p class="empty-state compact">Albums could not be loaded.</p>';
     });
     if (homeCatalog) {
