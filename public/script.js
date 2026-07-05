@@ -513,7 +513,7 @@ function albumCard(album, tracks) {
     .filter((item) => !item.isSnippet && String(item.kind || "").toLowerCase() !== "snippet")
     .sort((a, b) => Number(a.trackNumber || 9999) - Number(b.trackNumber || 9999));
   const trackList = albumTracks.length
-    ? albumTracks.map((item, index) => publicCatalogItem(item, Number(item.trackNumber || index + 1), "compact")).join("")
+    ? albumTracks.map((item, index) => publicCatalogItem(item, Number(item.trackNumber || index + 1), "full")).join("")
     : '<p class="empty-state compact">No full tracks linked to this album yet.</p>';
   return `
     <article class="album-card" data-album-id="${escapeHtml(album.id)}">
