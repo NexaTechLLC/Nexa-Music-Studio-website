@@ -507,9 +507,28 @@ function publicCatalogItem(item, trackNumber, variant = "full") {
   `;
 }
 
+function normalizedCatalogKey(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function isStudioAlbum(album) {
+  return String(album.status || "active").toLowerCase() !== "archived"
+    && String(album.releaseType || "").toLowerCase() !== "single collection";
+}
+
 function albumCard(album, tracks) {
+  const albumArtistKey = normalizedCatalogKey(album.artist || album.artistId);
   const albumTracks = tracks
-    .filter((item) => item.albumId === album.id || item.album === album.title)
+    .filter((item) => {
+      if (item.albumId === album.id) return true;
+      if (normalizedCatalogKey(item.album) === normalizedCatalogKey(album.title)) return true;
+      const sameArtist = normalizedCatalogKey(item.artist || item.artistId) === albumArtistKey;
+      const looseAlbum = !item.albumId || ["", "uploaded-media", "unassigned-album"].includes(normalizedCatalogKey(item.album));
+      return sameArtist && looseAlbum;
+    })
     .filter((item) => !item.isSnippet && String(item.kind || "").toLowerCase() !== "snippet")
     .sort((a, b) => Number(a.trackNumber || 9999) - Number(b.trackNumber || 9999));
   const trackList = albumTracks.length
@@ -592,7 +611,7 @@ async function initPublicCatalog() {
 
     allAlbumContainers.forEach((container) => {
       const visibleAlbums = albums
-        .filter((album) => String(album.status || "active").toLowerCase() !== "archived")
+        .filter(isStudioAlbum)
         .sort((a, b) => new Date(b.createdAt || b.releaseDate || 0) - new Date(a.createdAt || a.releaseDate || 0));
       container.innerHTML = visibleAlbums.length
         ? visibleAlbums.map((album) => albumCard(album, media)).join("")
