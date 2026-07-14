@@ -8,9 +8,10 @@
       content="NEXAMusic™ Studios is a futuristic digital record label and direct-to-fan music library powered by global creativity and next-generation production."
     />
     <title>NEXAMusic™ Studios | Global AI Music House</title>
-    <link rel="icon" type="image/png" href="/assets/nexa-mark.png" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/assets/nexa-logo-v2.png" as="image" />
-    <link rel="stylesheet" href="/styles.css?v=28" />
+    <link rel="stylesheet" href="/styles.css?v=29" />
   </head>
   <body>
     <header class="site-header" id="top">
@@ -66,6 +67,25 @@
             <span>High quality downloads</span>
           </div>
         </div>
+      </section>
+
+      <section class="section spotify-embed-section reveal" aria-labelledby="spotify-feature-title">
+        <div class="section-heading">
+          <p class="eyebrow">Featured album</p>
+          <h2 id="spotify-feature-title">Listen on Spotify.</h2>
+        </div>
+        <iframe
+          data-testid="embed-iframe"
+          class="spotify-embed"
+          src="https://open.spotify.com/embed/album/0OaEXow1c1P8T9SdJwNgqQ?utm_source=generator&si=ff8d7d171bb34a7e"
+          width="100%"
+          height="352"
+          frameborder="0"
+          allowfullscreen
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+          title="Spotify album player"
+        ></iframe>
       </section>
 
       <section class="section intro reveal">
@@ -280,6 +300,6 @@
         <audio id="audio-modal-player" preload="metadata"></audio>
       </div>
     </div>
-    <script src="/script.js?v=28"></script>
+    <script src="/script.js?v=29"></script>
   </body>
 </html>

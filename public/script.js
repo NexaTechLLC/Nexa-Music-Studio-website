@@ -519,6 +519,24 @@ function isStudioAlbum(album) {
     && String(album.releaseType || "").toLowerCase() !== "single collection";
 }
 
+function albumTrackRow(item, trackNumber) {
+  return `
+    <article class="album-track-row">
+      <div class="album-track-num">${trackNumber}</div>
+      <div class="album-track-info">
+        <strong>${escapeHtml(item.title)}</strong>
+        <span>${escapeHtml(item.artist || "NEXAMusic™ Studios")}</span>
+        <small>${escapeHtml(item.album || "Album")} · ${escapeHtml(item.genre || "Catalog")} · ${escapeHtml(item.kind || "full track")} · ${Number(item.streams || 0).toLocaleString()} streams</small>
+      </div>
+      <div class="album-track-actions">
+        ${publicPreviewButton(item)}
+        ${publicTrackButton(item, "Full Track")}
+        ${publicDownloadButton(item)}
+      </div>
+    </article>
+  `;
+}
+
 function albumCard(album, tracks) {
   const albumArtistKey = normalizedCatalogKey(album.artist || album.artistId);
   const albumTracks = tracks
@@ -532,7 +550,7 @@ function albumCard(album, tracks) {
     .filter((item) => !item.isSnippet && String(item.kind || "").toLowerCase() !== "snippet")
     .sort((a, b) => Number(a.trackNumber || 9999) - Number(b.trackNumber || 9999));
   const trackList = albumTracks.length
-    ? albumTracks.map((item, index) => publicCatalogItem(item, Number(item.trackNumber || index + 1), "full")).join("")
+    ? albumTracks.map((item, index) => albumTrackRow(item, Number(item.trackNumber || index + 1))).join("")
     : '<p class="empty-state compact">No full tracks linked to this album yet.</p>';
   return `
     <article class="album-card" data-album-id="${escapeHtml(album.id)}">

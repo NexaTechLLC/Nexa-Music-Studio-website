@@ -586,6 +586,60 @@ h3 {
   display: none;
 }
 
+.album-track-row {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.album-track-row:last-child {
+  border-bottom: 0;
+}
+
+.album-track-num {
+  color: var(--muted);
+  font-weight: 900;
+  text-align: center;
+}
+
+.album-track-info {
+  min-width: 0;
+}
+
+.album-track-info strong,
+.album-track-info span,
+.album-track-info small {
+  display: block;
+}
+
+.album-track-info strong {
+  color: var(--text);
+  line-height: 1.25;
+}
+
+.album-track-info span,
+.album-track-info small {
+  color: var(--muted);
+}
+
+.album-track-info small {
+  font-size: 0.78rem;
+}
+
+.album-track-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-self: end;
+}
+
+.album-track-actions .preview-btn {
+  margin-top: 0;
+}
+
 .catalog-track {
   display: grid;
   grid-template-columns: minmax(72px, auto) 1fr auto auto;
@@ -596,6 +650,18 @@ h3 {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.03);
+}
+
+.spotify-embed-section {
+  padding-top: 1rem;
+}
+
+.spotify-embed {
+  display: block;
+  margin-top: 1.5rem;
+  border: 0;
+  border-radius: 12px;
+  background: #000;
 }
 
 .track-number {
@@ -2055,6 +2121,17 @@ h3 {
   .catalog-track {
     grid-template-columns: 1fr;
     align-items: stretch;
+  }
+
+  .album-track-row {
+    grid-template-columns: 2rem minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .album-track-actions {
+    grid-column: 1 / -1;
+    justify-self: stretch;
+    flex-wrap: wrap;
   }
 
   .track-actions {
