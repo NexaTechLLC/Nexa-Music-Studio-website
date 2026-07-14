@@ -18,6 +18,7 @@ const albumsFile = path.join(metaDir, "albums.json");
 const streamsFile = path.join(metaDir, "streams.json");
 const passwordResetsFile = path.join(metaDir, "password-resets.json");
 const reviewsFile = path.join(metaDir, "reviews.json");
+const defaultAlbumArtwork = "/assets/Album%20Art.png";
 const adminEmails = new Set(
   String(process.env.ADMIN_EMAILS || "")
     .split(",")
@@ -125,7 +126,7 @@ const seedAlbums = [
     releaseType: "single collection",
     releaseDate: "2026-06-24",
     status: "active",
-    artwork: "/assets/nexa-mark.png",
+    artwork: defaultAlbumArtwork,
     createdAt: "2026-06-24T00:00:00.000Z"
   },
   {
@@ -136,7 +137,7 @@ const seedAlbums = [
     releaseType: "single collection",
     releaseDate: "2026-06-24",
     status: "active",
-    artwork: "/assets/nexa-mark.png",
+    artwork: defaultAlbumArtwork,
     createdAt: "2026-06-24T00:00:00.000Z"
   }
 ];
@@ -740,7 +741,7 @@ async function handleAlbumCreate(request, response) {
     releaseType: sanitizeText(body.releaseType, "album"),
     releaseDate: sanitizeText(body.releaseDate),
     status: sanitizeText(body.status, "draft"),
-    artwork: sanitizeText(body.artwork, "/assets/nexa-mark.png"),
+    artwork: sanitizeText(body.artwork, defaultAlbumArtwork),
     createdAt: new Date().toISOString()
   };
   if (albums.some((item) => item.id === album.id)) album.id = `${album.id}-${crypto.randomBytes(3).toString("hex")}`;

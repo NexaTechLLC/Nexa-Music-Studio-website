@@ -1,6 +1,7 @@
 const toggle = document.querySelector(".nav-toggle");
 const navLinks = document.querySelectorAll(".site-nav a");
 const year = document.querySelector("#year");
+const defaultAlbumArtwork = "/assets/Album%20Art.png";
 
 if (year) {
   year.textContent = new Date().getFullYear();
@@ -519,6 +520,13 @@ function isStudioAlbum(album) {
     && String(album.releaseType || "").toLowerCase() !== "single collection";
 }
 
+function albumArtwork(album) {
+  const title = normalizedCatalogKey(album?.title);
+  if (title.includes("jesus-christ-the-lamb-of-royal-mercies")) return defaultAlbumArtwork;
+  const artwork = String(album?.artwork || "").trim();
+  return artwork && !artwork.includes("/assets/nexa-mark.png") ? artwork : defaultAlbumArtwork;
+}
+
 function albumTrackRow(item, trackNumber) {
   return `
     <article class="album-track-row">
@@ -555,7 +563,7 @@ function albumCard(album, tracks) {
   return `
     <article class="album-card" data-album-id="${escapeHtml(album.id)}">
       <button class="album-art-button" type="button" aria-expanded="false">
-        <img src="${escapeHtml(album.artwork || "/assets/nexa-mark.png")}" alt="${escapeHtml(album.title)} album art" />
+        <img src="${escapeHtml(albumArtwork(album))}" alt="${escapeHtml(album.title)} album art" />
       </button>
       <div class="album-card-body">
         <p class="eyebrow">${escapeHtml(album.releaseType || "album")}</p>
@@ -756,7 +764,7 @@ async function loadAdminDashboard() {
   if (albumsTable) {
     albumsTable.innerHTML = tableMarkup(["Artwork", "Album", "Artist", "Type", "Tracks", "Streams"], dashboard.albums.map((album) => `
       <tr>
-        <td><img class="table-artwork" src="${escapeHtml(album.artwork || "/assets/nexa-mark.png")}" alt="" /></td>
+        <td><img class="table-artwork" src="${escapeHtml(albumArtwork(album))}" alt="" /></td>
         <td>${escapeHtml(album.title)}</td>
         <td>${escapeHtml(album.artist)}</td>
         <td>${escapeHtml(album.releaseType || "-")}</td>
