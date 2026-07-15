@@ -162,7 +162,9 @@ function initAudioPreviews() {
   document.addEventListener("click", (event) => {
     const btn = event.target.closest(".preview-btn[data-audio]");
     if (!btn) return;
-    play(btn.dataset.audio, btn.closest(".catalog-track")?.querySelector(".track-link")?.textContent || "NEXAStudios preview", btn, btn.dataset.previewLimit);
+    const rowTitle = btn.closest(".album-track-row")?.querySelector(".album-track-info strong")?.textContent;
+    const catalogTitle = btn.closest(".catalog-track, .product-card")?.querySelector("strong, h3")?.textContent;
+    play(btn.dataset.audio, rowTitle || catalogTitle || "NEXAStudios preview", btn, btn.dataset.previewLimit);
   });
 
   audio.addEventListener("timeupdate", () => {

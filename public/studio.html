@@ -7,7 +7,7 @@
     <title>Studio | NEXAMusic™ Studios</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="stylesheet" href="/styles.css?v=32" />
+    <link rel="stylesheet" href="/styles.css?v=33" />
   </head>
   <body>
     <header class="site-header" id="top">
@@ -119,6 +119,31 @@
     </main>
 
     <footer class="site-footer"><img src="/assets/nexa-mark.png" alt="" /><p>&copy; <span id="year"></span> NEXAMusic™ Studios. All rights reserved.</p><a href="https://www.youtube.com/@NEXAStudiosTMMusic" target="_blank" rel="noopener">YouTube</a><a href="/contact">Contact</a></footer>
-    <script src="/script.js?v=32"></script>
+    <div id="audio-bar" role="status" aria-live="polite">
+      <button id="audio-bar-toggle" aria-label="Pause preview"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><rect x="2" y="1" width="4" height="12"/><rect x="8" y="1" width="4" height="12"/></svg></button>
+      <div><div class="track-label">Now previewing</div><div class="track-name" id="audio-bar-title">-</div></div>
+      <progress id="audio-progress" value="0" max="1"></progress>
+      <button id="audio-bar-close" aria-label="Close player">x</button>
+    </div>
+    <div id="audio-modal" class="audio-modal" hidden>
+      <div class="audio-modal-content">
+        <button class="audio-modal-close" aria-label="Close player">&times;</button>
+        <h3 id="audio-modal-title">Now Playing</h3>
+        <div class="audio-player-controls">
+          <button class="audio-control-btn" id="audio-play-pause" aria-label="Play/Pause"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M3 2l10 6-10 6V2z"/></svg></button>
+          <div class="audio-progress-container">
+            <span id="audio-current-time" class="audio-time">0:00</span>
+            <input type="range" id="audio-progress-bar" class="audio-progress-bar" value="0" min="0" max="100" step="0.1" aria-label="Seek">
+            <span id="audio-duration" class="audio-time">0:00</span>
+          </div>
+          <div class="audio-volume-control">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" class="volume-icon"><path d="M3 9v-2h2l3-3v8l-3-3H3z"/></svg>
+            <input type="range" id="audio-volume" class="audio-volume-slider" value="1" min="0" max="1" step="0.1" aria-label="Volume">
+          </div>
+        </div>
+        <audio id="audio-modal-player" preload="metadata"></audio>
+      </div>
+    </div>
+    <script src="/script.js?v=33"></script>
   </body>
 </html>
