@@ -1,7 +1,7 @@
 const toggle = document.querySelector(".nav-toggle");
 const navLinks = document.querySelectorAll(".site-nav a");
 const year = document.querySelector("#year");
-const defaultAlbumArtwork = "/assets/Album%20Art.png";
+const defaultAlbumArtwork = "/assets/COVER%20ART%20For%20JESUS%20CHRIST%20THE%20LAMB%20OF%20ROYAL%20MERCIES%20Album.png";
 
 if (year) {
   year.textContent = new Date().getFullYear();

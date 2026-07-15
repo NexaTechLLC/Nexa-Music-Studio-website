@@ -18,7 +18,7 @@ const albumsFile = path.join(metaDir, "albums.json");
 const streamsFile = path.join(metaDir, "streams.json");
 const passwordResetsFile = path.join(metaDir, "password-resets.json");
 const reviewsFile = path.join(metaDir, "reviews.json");
-const defaultAlbumArtwork = "/assets/Album%20Art.png";
+const defaultAlbumArtwork = "/assets/COVER%20ART%20For%20JESUS%20CHRIST%20THE%20LAMB%20OF%20ROYAL%20MERCIES%20Album.png";
 const adminEmails = new Set(
   String(process.env.ADMIN_EMAILS || "")
     .split(",")
