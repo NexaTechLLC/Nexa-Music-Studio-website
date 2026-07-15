@@ -629,6 +629,7 @@ async function initPublicCatalog() {
       const artistId = container.dataset.artistAlbums;
       const artistAlbums = albums
         .filter((album) => album.artistId === artistId || artistSlug(album.artist) === artistId)
+        .filter(isStudioAlbum)
         .filter((album) => String(album.status || "active").toLowerCase() === "active" || media.some((item) => item.albumId === album.id));
       container.innerHTML = artistAlbums.length
         ? artistAlbums.map((album) => albumCard(album, media)).join("")
