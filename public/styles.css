@@ -1503,13 +1503,24 @@ h3 {
   place-items: start center;
 }
 
+.checkout-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
 .checkout-card {
-  width: min(720px, 100%);
+  width: 100%;
   padding: 1.4rem;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
   box-shadow: var(--shadow);
+}
+
+.featured-checkout {
+  border-color: rgba(17, 200, 255, 0.55);
 }
 
 .checkout-card ul {
@@ -1527,6 +1538,15 @@ h3 {
   min-height: 38px;
   padding: 0.5rem 1rem;
   font-size: 0.85rem;
+}
+
+.track-buy-btn,
+.album-buy-btn {
+  white-space: nowrap;
+}
+
+.album-buy-btn {
+  margin-top: 1rem;
 }
 
 .purchase-success {
@@ -2012,7 +2032,8 @@ h3 {
   .intro,
   .split-section,
   .store-panel,
-  .page-hero {
+  .page-hero,
+  .checkout-grid {
     grid-template-columns: 1fr;
   }
 

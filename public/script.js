@@ -1635,13 +1635,43 @@ function initAudioModal() {
   document.addEventListener("click", async (event) => {
     const btn = event.target.closest(".download-btn");
     if (!btn) return;
+    btn.disabled = true;
+    const originalText = btn.textContent;
+    btn.textContent = "Checking";
     const user = await checkAuth();
     if (!user) {
       alert("Please sign in before downloading media files.");
       window.location.href = "/auth";
       return;
     }
-    window.location.href = btn.dataset.download;
+    try {
+      const res = await fetch(btn.dataset.download);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 403) {
+          alert(data.error || "Purchase this track, buy the album, or subscribe before downloading.");
+          window.location.href = "/checkout";
+          return;
+        }
+        throw new Error(data.error || "Download unavailable.");
+      }
+      const blob = await res.blob();
+      const disposition = res.headers.get("content-disposition") || "";
+      const filename = disposition.match(/filename="([^"]+)"/)?.[1] || "nexamusic-download";
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      alert(error.message || "Download unavailable.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
   });
 
   modalPlayer.addEventListener("error", (e) => {
