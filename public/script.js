@@ -601,7 +601,7 @@ function albumCard(album, tracks) {
         <p>${escapeHtml(album.artist || "NEXAMusic™ Studios")} · ${escapeHtml(album.genre || "Catalog")} · ${albumTracks.length} track${albumTracks.length === 1 ? "" : "s"}</p>
         ${album.status ? `<span class="album-status">${escapeHtml(album.status)}</span>` : ""}
         ${album.releaseDate ? `<span class="album-date">${escapeHtml(album.releaseDate)}</span>` : ""}
-        ${normalizedCatalogKey(album.title).includes("jesus-christ-the-lamb-of-royal-mercies") ? `<button class="button primary buy-btn album-buy-btn" data-plan="jesus-album" data-album-id="${escapeHtml(album.id)}" data-name="${escapeHtml(album.title)}" type="button">Buy album MP3/WAV $9.99</button>` : ""}
+        ${normalizedCatalogKey(album.title).includes("jesus-christ-the-lamb-of-royal-mercies") ? `<a class="button primary album-buy-btn" href="/checkout?plan=jesus-album&albumId=${encodeURIComponent(album.id)}">Buy album MP3/WAV $9.99</a>` : ""}
       </div>
       <div class="album-track-list" hidden>
         ${trackList}
