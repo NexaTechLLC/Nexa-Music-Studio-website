@@ -304,7 +304,13 @@ function initBuyButtons() {
         const res = await fetch("/api/checkout", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ priceId: btn.dataset.priceId, productName: btn.dataset.name })
+          body: JSON.stringify({
+            plan: btn.dataset.plan,
+            priceId: btn.dataset.priceId,
+            productName: btn.dataset.name,
+            trackId: btn.dataset.trackId,
+            albumId: btn.dataset.albumId
+          })
         });
         const data = await res.json();
         if (data.url) {
@@ -465,7 +471,28 @@ function publicTrackButton(item, label = "Listen") {
 
 function publicDownloadButton(item) {
   if (item.provider === "youtube") return "";
-  return `<button class="download-btn" data-download="${escapeHtml(item.downloadUrl || `/api/download?trackId=${encodeURIComponent(item.id)}`)}" type="button">Download</button>`;
+  return `
+    <button class="download-btn" data-download="${escapeHtml(item.downloadUrl || `/api/download?trackId=${encodeURIComponent(item.id)}&format=mp3`)}" type="button">MP3</button>
+    <button class="download-btn" data-download="${escapeHtml(`/api/download?trackId=${encodeURIComponent(item.id)}&format=wav`)}" type="button">WAV</button>
+  `;
+}
+
+function isJesusAlbumItem(item) {
+  return normalizedCatalogKey(item.album || item.albumId).includes("jesus-christ-the-lamb-of-royal-mercies");
+}
+
+function trackPricePlan(item) {
+  if (!isJesusAlbumItem(item)) return null;
+  const number = Number(item.trackNumber || 0);
+  if (number >= 1 && number <= 13) return { plan: "jesus-track-vocal", price: "$1.34", label: "Buy MP3/WAV" };
+  if (number >= 14 && number <= 16) return { plan: "jesus-track-instrumental", price: "$0.99", label: "Buy MP3/WAV" };
+  return null;
+}
+
+function publicPurchaseButton(item) {
+  const pricing = trackPricePlan(item);
+  if (!pricing) return "";
+  return `<button class="buy-btn track-buy-btn" data-plan="${pricing.plan}" data-track-id="${escapeHtml(item.id)}" data-name="${escapeHtml(item.title)}" type="button">${pricing.label} ${pricing.price}</button>`;
 }
 
 function previewUrl(item) {
@@ -539,6 +566,7 @@ function albumTrackRow(item, trackNumber) {
         <small>${escapeHtml(item.album || "Album")} · ${escapeHtml(item.genre || "Catalog")} · ${escapeHtml(item.kind || "full track")} · ${Number(item.streams || 0).toLocaleString()} streams</small>
       </div>
       <div class="album-track-actions">
+        ${publicPurchaseButton(item)}
         ${publicPreviewButton(item)}
         ${publicTrackButton(item, "Full Track")}
         ${publicDownloadButton(item)}
@@ -573,6 +601,7 @@ function albumCard(album, tracks) {
         <p>${escapeHtml(album.artist || "NEXAMusic™ Studios")} · ${escapeHtml(album.genre || "Catalog")} · ${albumTracks.length} track${albumTracks.length === 1 ? "" : "s"}</p>
         ${album.status ? `<span class="album-status">${escapeHtml(album.status)}</span>` : ""}
         ${album.releaseDate ? `<span class="album-date">${escapeHtml(album.releaseDate)}</span>` : ""}
+        ${normalizedCatalogKey(album.title).includes("jesus-christ-the-lamb-of-royal-mercies") ? `<button class="button primary buy-btn album-buy-btn" data-plan="jesus-album" data-album-id="${escapeHtml(album.id)}" data-name="${escapeHtml(album.title)}" type="button">Buy album MP3/WAV $9.99</button>` : ""}
       </div>
       <div class="album-track-list" hidden>
         ${trackList}
@@ -591,6 +620,7 @@ function storeCatalogCard(item) {
         <p>${escapeHtml(item.album || "Single")} · ${escapeHtml(item.genre || publicTrackMeta(item))} · ${Number(item.streams || 0).toLocaleString()} streams</p>
         <div class="product-actions">
           <span class="product-price">${Number(item.streams || 0).toLocaleString()}</span>
+          ${publicPurchaseButton(item)}
           ${publicPreviewButton(item)}
           ${publicTrackButton(item, "Full Track")}
           ${publicDownloadButton(item)}
@@ -1609,11 +1639,6 @@ function initAudioModal() {
     if (!user) {
       alert("Please sign in before downloading media files.");
       window.location.href = "/auth";
-      return;
-    }
-    if (!user.subscription?.liveStreaming) {
-      alert("Subscribe to live streaming to unlock media downloads.");
-      window.location.href = "/checkout";
       return;
     }
     window.location.href = btn.dataset.download;

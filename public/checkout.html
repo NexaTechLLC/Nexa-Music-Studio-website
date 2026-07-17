@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Subscribe to NEXAMusic™ Studios live streaming access." />
-    <title>Live Streaming Checkout | NEXAMusic™ Studios</title>
+    <meta name="description" content="Buy NEXAMusic™ Studios downloads and live streaming access through Stripe Checkout." />
+    <title>Music Checkout | NEXAMusic™ Studios</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="stylesheet" href="/styles.css?v=35" />
@@ -27,39 +27,60 @@
       <section class="page-hero reveal">
         <div>
           <p class="eyebrow">Checkout</p>
-          <h1>Subscribe to live streaming.</h1>
-          <p>Unlock NEXAMusic™ Studios live-streaming access, artist sessions, release events, and subscriber media downloads.</p>
+          <h1>Music downloads and live streaming.</h1>
+          <p>Choose MP3/WAV downloads for JESUS CHRIST: THE LAMB OF ROYAL MERCIES or subscribe for full live-streaming access inside the website.</p>
         </div>
         <img src="/assets/nexa-mark.png" alt="NEXAMusic™ Studios mark" />
       </section>
 
       <section class="section page-section checkout-section reveal">
-        <article class="checkout-card">
-          <p class="eyebrow">Live Streaming Pass</p>
-          <h2>$9.99 / month</h2>
-          <ul>
-            <li>Live artist streaming access</li>
-            <li>Subscriber-only media downloads</li>
-            <li>Behind-the-scenes and release events</li>
-            <li>BLACK INDIGO and DR. AMAKA ALOY programming</li>
-          </ul>
-          <form id="checkout-form" class="media-form">
-            <input type="hidden" name="plan" value="live-streaming-monthly" />
-            <input type="hidden" name="artistId" id="checkout-artist-id" value="all-artists" />
-            <div class="field">
-              <label for="checkout-card-name">Name on card</label>
-              <input id="checkout-card-name" name="cardName" type="text" placeholder="NEXAStudios Listener" required />
-            </div>
-            <div class="field-row">
-              <div class="field"><label for="checkout-card-number">Card number</label><input id="checkout-card-number" name="cardNumber" type="text" inputmode="numeric" placeholder="4242 4242 4242 4242" required /></div>
-              <div class="field"><label for="checkout-expiry">Expiry</label><input id="checkout-expiry" name="expiry" type="text" placeholder="MM/YY" required /></div>
-            </div>
-            <div class="field"><label for="checkout-cvc">CVC</label><input id="checkout-cvc" name="cvc" type="text" inputmode="numeric" placeholder="123" required /></div>
-            <button class="button primary" type="submit">Pay and subscribe</button>
-            <p class="form-status" aria-live="polite"></p>
-          </form>
-          <p class="checkout-note">Demo checkout activates access in your account. Stripe can be connected later for real card processing.</p>
-        </article>
+        <div class="checkout-grid">
+          <article class="checkout-card">
+            <p class="eyebrow">Tracks 1-13</p>
+            <h2>$1.34 / track</h2>
+            <p>Actual song + vocals from JESUS CHRIST: THE LAMB OF ROYAL MERCIES.</p>
+            <ul>
+              <li>Instant download after payment</li>
+              <li>MP3 format</li>
+              <li>WAV format</li>
+            </ul>
+            <button class="button primary buy-btn" type="button" data-plan="jesus-track-vocal" data-name="Jesus Christ vocal track download">Buy vocal track</button>
+          </article>
+          <article class="checkout-card">
+            <p class="eyebrow">Tracks 14-16</p>
+            <h2>$0.99 / track</h2>
+            <p>Instrumental versions from JESUS CHRIST: THE LAMB OF ROYAL MERCIES.</p>
+            <ul>
+              <li>Instant download after payment</li>
+              <li>MP3 format</li>
+              <li>WAV format</li>
+            </ul>
+            <button class="button primary buy-btn" type="button" data-plan="jesus-track-instrumental" data-name="Jesus Christ instrumental track download">Buy instrumental</button>
+          </article>
+          <article class="checkout-card featured-checkout">
+            <p class="eyebrow">Album</p>
+            <h2>$9.99</h2>
+            <p>Full JESUS CHRIST: THE LAMB OF ROYAL MERCIES album download.</p>
+            <ul>
+              <li>Instant full-album download access</li>
+              <li>MP3 format</li>
+              <li>WAV format</li>
+            </ul>
+            <button class="button primary buy-btn" type="button" data-plan="jesus-album" data-album-id="jesus-christ-the-lamb-of-royal-mercies" data-name="JESUS CHRIST: THE LAMB OF ROYAL MERCIES album">Buy album</button>
+          </article>
+          <article class="checkout-card">
+            <p class="eyebrow">Live Streaming Pass</p>
+            <h2>$9.99 / month</h2>
+            <p>Live streaming of all artist tracks inside the NEXAMusic™ Studios website.</p>
+            <ul>
+              <li>Website streaming access</li>
+              <li>Subscriber media downloads</li>
+              <li>Artist releases and events</li>
+            </ul>
+            <button class="button primary buy-btn" type="button" data-plan="live-streaming-monthly" data-name="NEXAMusic live streaming monthly">Subscribe monthly</button>
+          </article>
+        </div>
+        <p class="checkout-note">Stripe Checkout opens securely after selection. Add the MP3 and WAV source files in the catalog so each purchased format can be delivered.</p>
       </section>
     </main>
 
